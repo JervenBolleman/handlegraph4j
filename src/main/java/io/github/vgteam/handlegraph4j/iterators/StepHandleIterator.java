@@ -25,8 +25,10 @@ package io.github.vgteam.handlegraph4j.iterators;
 
 import java.util.Iterator;
 import java.util.function.Predicate;
-import java.util.stream.Stream;
 import io.github.vgteam.handlegraph4j.StepHandle;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.stream.StreamSupport;
 
 /**
  *
@@ -35,27 +37,36 @@ import io.github.vgteam.handlegraph4j.StepHandle;
 public interface StepHandleIterator extends Iterator<StepHandle>, AutoCloseable {
 
     public static StepHandleIterator wrap(StepHandleIterator steps, Predicate<StepHandle> predicate) {
-        return new StepHandleIterator() {
-            Iterator<StepHandle> st = Stream.generate(() -> null)
-                    .takeWhile(x -> steps.hasNext())
-                    .map(s -> steps.next())
+        return new WrappingStepHandleIterator(steps, predicate);
+    }
+
+    static class WrappingStepHandleIterator implements StepHandleIterator {
+
+        private final Iterator<StepHandle> st;
+        private final StepHandleIterator steps;
+
+        WrappingStepHandleIterator(StepHandleIterator steps, Predicate<StepHandle> predicate) {
+            this.steps = steps;
+            Spliterator<StepHandle> spliterator = Spliterators.spliteratorUnknownSize(
+                    steps, Spliterator.NONNULL);
+            st = StreamSupport.stream(spliterator, false)
                     .filter(predicate)
                     .iterator();
+        }
 
-            @Override
-            public boolean hasNext() {
-                return st.hasNext();
-            }
+        @Override
+        public boolean hasNext() {
+            return st.hasNext();
+        }
 
-            @Override
-            public StepHandle next() {
-                return st.next();
-            }
+        @Override
+        public StepHandle next() {
+            return st.next();
+        }
 
-            @Override
-            public void close() throws Exception {
-                steps.close();
-            }
-        };
+        @Override
+        public void close() throws Exception {
+            steps.close();
+        }
     }
 }

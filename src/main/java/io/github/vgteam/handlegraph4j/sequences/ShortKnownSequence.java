@@ -34,12 +34,16 @@ class ShortKnownSequence implements Sequence {
 
     private static final long MASK = 3l;
     public static final int MAX_LENGTH = BITS_USED_FOR_DNA / BITS_PER_NUCLEOTIDE;
-
+    private static final long REVERSE_COMPLIMENT_TOGGLE = 0b00000001_01010101_01010101_01010101_01010101_01010101_01010101_01010101l;
+    private static final long REVERSE_COMPLIMENT_CGKEEPER = 0b11111110_10101010_10101010_10101010_10101010_10101010_10101010_10101010l;
     private final long value;
 
     ShortKnownSequence(byte[] input) {
-        long code = encode(input);
-        value = code;
+        this.value = encode(input);
+    }
+
+    ShortKnownSequence(long input) {
+        this.value = input;
     }
 
     static long encode(byte[] input) {
@@ -62,7 +66,7 @@ class ShortKnownSequence implements Sequence {
                 return 1;
             case 'C':
             case 'c':
-                return BITS_PER_NUCLEOTIDE;
+                return 2;
             case 'G':
             case 'g':
                 return 3;
@@ -77,7 +81,7 @@ class ShortKnownSequence implements Sequence {
                 return 'a';
             case 1:
                 return 't';
-            case BITS_PER_NUCLEOTIDE:
+            case 2:
                 return 'c';
             case 3:
                 return 'g';
@@ -100,5 +104,42 @@ class ShortKnownSequence implements Sequence {
     @Override
     public SequenceType getType() {
         return SequenceType.SHORT_KNOWN;
+    }
+
+    @Override
+    public ShortKnownSequence reverseCompliment() {
+        long reverse = binaryReverseComplement(value);
+        return new ShortKnownSequence(reverse);
+    }
+
+    public static long binaryReverseComplement(long value) {
+        long cg = value & (REVERSE_COMPLIMENT_CGKEEPER);
+        long toggle = value ^ REVERSE_COMPLIMENT_TOGGLE;
+        long reverse = cg | toggle;
+        return reverse;
+    }
+
+    @Override
+    public int hashCode() {
+        return length() * Integer.bitCount((int) (value & REVERSE_COMPLIMENT_CGKEEPER));
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj instanceof ShortKnownSequence) {
+            final ShortKnownSequence other = (ShortKnownSequence) obj;
+            return this.value == other.value;
+        } else if (obj instanceof Sequence) {
+            return Sequence.equalByBytes(this, (Sequence) obj);
+        }
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return asString();
     }
 }

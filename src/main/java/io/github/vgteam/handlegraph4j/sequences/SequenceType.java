@@ -64,7 +64,7 @@ public enum SequenceType {
         } else if ((sequence.length <= ShortAmbiguousSequence.MAX_LENGTH)) {
             return new ShortAmbiguousSequence(sequence);
         } else {
-            return new ByteArraySequence(sequence);
+            return new LongSequence(sequence);
         }
     }
 

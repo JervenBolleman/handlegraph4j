@@ -23,29 +23,37 @@
  */
 package io.github.vgteam.handlegraph4j.sequences;
 
-/*
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
+/**
+ *
  * @author Jerven Bolleman <jerven.bolleman@sib.swiss>
  */
-public class ByteArraySequence implements Sequence {
-
-    private final byte[] sequence;
-
-    public ByteArraySequence(byte[] sequence) {
-        this.sequence = sequence;
+public class SequenceTest {
+    
+    public SequenceTest() {
+    }
+        /**
+     * Test of lowercase method, of class Sequence.
+     */
+    @Test
+    public void testLowercase() {
+        assertEquals('a', Sequence.lowercase((byte) 'A'));
+        assertEquals('c', Sequence.lowercase((byte) 'C'));
     }
 
-    @Override
-    public byte byteAt(int offset) {
-        return sequence[offset];
-    }
-
-    @Override
-    public int length() {
-        return sequence.length;
-    }
-
-    @Override
-    public SequenceType getType() {
-        return SequenceType.LONG_VIA_ID;
+    /**
+     * Test of maybeAGC method, of class Sequence.
+     */
+    @Test
+    public void testMaybeAGC() {
+        assertTrue(Sequence.maybeAGC((byte) 'c'));
+        assertTrue(Sequence.maybeAGC((byte) 'C'));
+        assertTrue(Sequence.maybeAGC((byte) 'g'));
+        assertTrue(Sequence.maybeAGC((byte) 'G'));
+        assertTrue(Sequence.maybeAGC((byte) 'N'));
+        assertFalse(Sequence.maybeAGC((byte) 'A'));
+        assertFalse(Sequence.maybeAGC((byte) 't'));
     }
 }
