@@ -13,7 +13,7 @@ jobs:
         java-version: 15
     - name: Run tests
       run:  mvn test
-    - name: Deploy to Github Package Registry
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: mvn -B deploy
+#    - name: Deploy to Github Package Registry
+#      env:
+#        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#      run: mvn -B deploy
