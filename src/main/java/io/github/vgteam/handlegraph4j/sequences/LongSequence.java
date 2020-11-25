@@ -23,14 +23,24 @@
  */
 package io.github.vgteam.handlegraph4j.sequences;
 
-import static io.github.vgteam.handlegraph4j.sequences.ShortAmbiguousSequence.MAX_LENGTH;
-import java.nio.charset.StandardCharsets;
+//import static io.github.vgteam.handlegraph4j.sequences.ShortAmbiguousSequence.MAX_LENGTH;
+import static io.github.vgteam.handlegraph4j.sequences.ShortAmbiguousSequence.BITS_PER_NUCLEOTIDE;
+import static java.nio.charset.StandardCharsets.US_ASCII;
 import java.util.Arrays;
 
 /*
  * @author Jerven Bolleman <jerven.bolleman@sib.swiss>
  */
 public class LongSequence implements Sequence {
+
+    private static final int MAX_LENGTH = 32;
+    private static final long ONLY_A = 0b00010001_00010001_00010001_00010001_00010001_00010001_00010001_00010001l;
+    private static final long ONLY_T = 0b00100010_00100010_00100010_00100010_00100010_00100010_00100010_00100010l;
+    private static final long ONLY_C = 0b01000100_01000100_01000100_01000100_01000100_01000100_01000100_01000100l;
+    private static final long ONLY_G = 0b10001000_10001000_10001000_10001000_10001000_10001000_10001000_10001000l;
+    private static final long T_OR_G = ONLY_T | ONLY_G;
+    private static final long A_OR_C = ONLY_A | ONLY_C;
+    private static final long GC_COUNT_MASK = ONLY_G | ONLY_C;
 
     private final long[] sequence;
     private final int length;
@@ -52,22 +62,33 @@ public class LongSequence implements Sequence {
         for (; i < sequence.length; i++) {
             buffer[j++] = sequence[i];
             if (j == MAX_LENGTH) {
-                this.sequence[g] = ShortAmbiguousSequence.encode(buffer);
+                this.sequence[g] = encode(buffer);
                 g++;
                 j = 0;
             }
         }
-        if (j != MAX_LENGTH) {
+        if (j != MAX_LENGTH && j != 0) {
             byte[] trimmed = Arrays.copyOf(buffer, j);
-            this.sequence[g] = ShortAmbiguousSequence.encode(trimmed);
+            this.sequence[g] = encode(trimmed);
         }
+    }
+
+    static long encode(byte[] input) {
+        long length = input.length;
+        assert length <= MAX_LENGTH;
+        long code = 0; // use for bits to store the length
+        for (int j = 0, i = 0; j < input.length; i = i + BITS_PER_NUCLEOTIDE, j++) {
+            code = code | (ShortAmbiguousSequence.fromNucleotide(input[j]) << i);
+        }
+        return code;
     }
 
     @Override
     public byte byteAt(int offset) {
         long seq = sequence[offset / MAX_LENGTH];
-        int subbyte = offset % MAX_LENGTH;
-        return new ShortAmbiguousSequence(seq).byteAt(subbyte);
+        int subbyte =(offset % MAX_LENGTH) * 4;
+        int nonMasked = (int) (seq >>> subbyte) & 15;
+        return ShortAmbiguousSequence.fromInt(nonMasked);
     }
 
     @Override
@@ -85,7 +106,11 @@ public class LongSequence implements Sequence {
         if (length == 0) {
             return 0;
         }
-        return length() * ShortAmbiguousSequence.GCcount(sequence[0]);
+        return length() * GCcount(sequence[0]);
+    }
+
+    private static int GCcount(long value) {
+        return Long.bitCount(value & GC_COUNT_MASK);
     }
 
     @Override
@@ -103,18 +128,29 @@ public class LongSequence implements Sequence {
     public Sequence reverseCompliment() {
         long[] ns = new long[length];
         for (int i = 0; i < sequence.length; i++) {
-            ns[i] = ShortKnownSequence.binaryReverseComplement(sequence[i]);
+            ns[i] = binaryReverseComplement(sequence[i]);
         }
         return new LongSequence(ns, length);
     }
 
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder(length);
-        for (int i = 0; i < sequence.length; i++) {
-            sb.append(new ShortAmbiguousSequence(sequence[i]).toString());
-        }
-        return sb.toString();
+    private static long binaryReverseComplement(long value) {
+        long leftShiftBy1 = value << 1;
+        long leftShifted = (leftShiftBy1 & T_OR_G);
+        long rightShiftByOne = value >>> 1;
+        long righShifted = rightShiftByOne & A_OR_C;
+        return (leftShifted | righShifted);
     }
 
+    @Override
+    public String toString() {
+        return new String(asByteArray(), US_ASCII);
+    }
+
+    private byte[] asByteArray() {
+        byte[] val = new byte[length()];
+        for (int i = 0; i < length(); i++) {
+            val[i] = byteAt(i);
+        }
+        return val;
+    }
 }

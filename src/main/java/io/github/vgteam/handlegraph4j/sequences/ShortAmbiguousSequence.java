@@ -87,7 +87,7 @@ class ShortAmbiguousSequence implements Sequence {
         return code | (length << BITS_USED_FOR_DNA) | TYPE;
     }
 
-    private static long fromNucleotide(byte nucleotide) {
+    static long fromNucleotide(byte nucleotide) {
 
         switch (Sequence.lowercase(nucleotide)) {
             case 'a':
@@ -121,11 +121,11 @@ class ShortAmbiguousSequence implements Sequence {
             case 'n':
                 return N;
             default:
-                throw new IllegalArgumentException("Not known as non ambigous DNA");
+                throw new IllegalArgumentException("Not known as non ambigous DNA: " + (char) nucleotide);
         }
     }
 
-    private static byte fromInt(int nucleotide) {
+    static byte fromInt(int nucleotide) {
         switch (nucleotide) {
             case (int) A:
                 return 'a';

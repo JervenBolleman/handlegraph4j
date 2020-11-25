@@ -68,7 +68,13 @@ public class LongSequenceTest {
         Sequence instance = new LongSequence(new byte[]{'a', 'c'});
         assertEquals("ac", instance.toString());
 
-        byte[] aaaas = new byte[1000];
+        byte[] aaaas = new byte[128];
+        Arrays.fill(aaaas, (byte) 'a');
+        instance = new LongSequence(aaaas);
+        assertEquals(128, instance.toString().length());
+        assertEquals(new String(aaaas, StandardCharsets.US_ASCII), instance.toString());
+
+        aaaas = new byte[1000];
         Arrays.fill(aaaas, (byte) 'a');
         instance = new LongSequence(aaaas);
         assertEquals(new String(aaaas, StandardCharsets.US_ASCII), instance.toString());
@@ -77,5 +83,29 @@ public class LongSequenceTest {
         Arrays.fill(nnnnns, (byte) 'n');
         instance = new LongSequence(nnnnns);
         assertEquals(new String(nnnnns, StandardCharsets.US_ASCII), instance.toString());
+    }
+
+    @Test
+    public void testToStrings() {
+        for (int i = 1; i < 1024; i++) {
+            byte[] aaaas = new byte[i];
+            Arrays.fill(aaaas, (byte) 'a');
+            Sequence instance = new LongSequence(aaaas);
+            assertEquals(aaaas.length, instance.toString().length());
+            assertEquals(new String(aaaas, StandardCharsets.US_ASCII), instance.toString());
+        }
+    }
+
+    @Test
+    public void testToStringReveseComplement() {
+        for (int i = 1; i < 512; i++) {
+            byte[] aaaas = new byte[i];
+            Arrays.fill(aaaas, (byte) 'a');
+            byte[] tttts = new byte[i];
+            Arrays.fill(tttts, (byte) 't');
+            Sequence instance = new LongSequence(aaaas);
+            assertEquals(aaaas.length, instance.toString().length());
+            assertEquals(new String(tttts, StandardCharsets.US_ASCII), instance.reverseCompliment().toString());
+        }
     }
 }
