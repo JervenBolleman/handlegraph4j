@@ -27,10 +27,10 @@ package io.github.vgteam.handlegraph4j;
  *
  * @author Jerven Bolleman <jerven.bolleman@sib.swiss>
  */
-public interface EdgeHandle {
+public interface EdgeHandle<N extends NodeHandle> {
 
-    public NodeHandle getRight();
+    public N right();
 
-    public NodeHandle getLeft();
+    public N left();
     
 }

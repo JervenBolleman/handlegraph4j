@@ -31,15 +31,15 @@ import io.github.vgteam.handlegraph4j.iterators.NodeHandleIterator;
  *
  * @author Jerven Bolleman <jerven.bolleman@sib.swiss>
  */
-public interface HandleGraph {
+public interface HandleGraph<N extends NodeHandle, E extends EdgeHandle<N>> {
 
-    public default EdgeHandle edgeHandle(NodeHandle left, NodeHandle right) {
-        NodeHandle flippedRight = flip(right);
+    public default E edgeHandle(N left, N right) {
+        N flippedRight = flip(right);
         long leftId = asLong(left);
         long flippedRightId = asLong(flippedRight);
         if (leftId == flippedRightId) {
             // Our left and the flipped pair's left would be equal.
-            NodeHandle flippedLeft = flip(left);
+            N flippedLeft = flip(left);
             long flippedLeftId = asLong(flippedLeft);
             if (flippedRightId > flippedLeftId) {
                 return edge(flippedRightId, flippedLeftId);
@@ -48,16 +48,16 @@ public interface HandleGraph {
         return edge(leftId, asLong(right));
     }
 
-    public default NodeHandle traverseEdgeHandle(EdgeHandle edge, NodeHandle left) {
-        if (left.equals(edge.getLeft())) {
+    public default N traverseEdgeHandle(E edge, N left) {
+        if (left.equals(edge.left())) {
             // The cannonical orientation is the one we want
-            return edge.getRight();
-        } else if (left == flip(edge.getRight())) {
+            return edge.right();
+        } else if (left == flip(edge.right())) {
             // We really want the other orientation
             return flip(left);
         } else {
-            String leftMsg = asLong(edge.getLeft()) + " " + isReverseNodeHandle(edge.getLeft());
-            String rightMsg = asLong(edge.getRight()) + " " + isReverseNodeHandle(edge.getRight());
+            String leftMsg = asLong(edge.left()) + " " + isReverseNodeHandle(edge.left());
+            String rightMsg = asLong(edge.right()) + " " + isReverseNodeHandle(edge.right());
             throw new RuntimeException("Cannot view edge " + leftMsg
                     + " -> "
                     + rightMsg
@@ -65,11 +65,11 @@ public interface HandleGraph {
         }
     }
 
-    public default boolean hasEdge(NodeHandle left, NodeHandle right) {
+    public default boolean hasEdge(N left, N right) {
         boolean notSeen = true;
-        try (final EdgeHandleIterator iter = followEdges(left, false)) {
+        try (final EdgeHandleIterator<N, E> iter = followEdges(left, false)) {
             while (iter.hasNext()) {
-                EdgeHandle next = iter.next();
+                E next = iter.next();
                 return (!next.equals(right));
             }
         } catch (Exception e) {
@@ -91,7 +91,7 @@ public interface HandleGraph {
         return count;
     }
 
-    public default long getTotalNodeSequenceLength() {
+    public default long totalNodeSequenceLength() {
         long count = 0;
         try (final NodeHandleIterator iter = nodes()) {
             while (iter.hasNext()) {
@@ -104,33 +104,27 @@ public interface HandleGraph {
         return count;
     }
 
-    public boolean isReverseNodeHandle(NodeHandle nh);
+    public boolean isReverseNodeHandle(N nh);
 
-    public NodeHandle flip(NodeHandle nh);
+    public N flip(N nh);
 
-    public long asLong(NodeHandle nh);
+    public long asLong(N nh);
 
-    public EdgeHandle edge(long flippedRightId, long flippedLeftId);
+    public E edge(long leftId, long rightId);
 
-    public EdgeHandleIterator followEdges(NodeHandle left, boolean b);
+    public EdgeHandleIterator<N, E> followEdges(N left, boolean b);
 
-    public EdgeHandleIterator edges();
+    public EdgeHandleIterator<N, E> edges();
 
-    public NodeHandleIterator nodes();
+    public NodeHandleIterator<N> nodes();
 
-
-
-  
-
-    public NodeHandle getNodeHandle(StepHandle s);
-
-    public default byte getBase(NodeHandle handle, int offset) {
+    public default byte getBase(N handle, int offset) {
         return getSequence(handle).byteAt(offset);
     }
 
-    public Sequence getSequence(NodeHandle handle);
+    public Sequence getSequence(N handle);
 
-    public default NodeHandle forward(NodeHandle nh) {
+    public default N forward(N nh) {
         if (isReverseNodeHandle(nh)) {
             return flip(nh);
         } else {
@@ -138,5 +132,7 @@ public interface HandleGraph {
         }
     }
 
-    public boolean equalNodes(NodeHandle n, NodeHandle nh);
+    public default boolean equalNodes(N l, N r) {
+        return asLong(l) == asLong(r);
+    }
 }

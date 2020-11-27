@@ -27,6 +27,5 @@ package io.github.vgteam.handlegraph4j;
  *
  * @author Jerven Bolleman <jerven.bolleman@sib.swiss>
  */
-public interface PathHandle {
-    public boolean isCircular();
+public interface PathHandle {  
 }

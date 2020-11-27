@@ -54,7 +54,7 @@ public interface Sequence {
     public int length();
 
     public SequenceType getType();
-
+    
     public static int hashCode(Sequence t) {
         final int length = t.length();
         int max = Math.min(length, ShortKnownSequence.MAX_LENGTH);

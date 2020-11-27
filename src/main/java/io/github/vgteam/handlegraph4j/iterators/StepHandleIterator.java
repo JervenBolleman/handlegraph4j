@@ -34,20 +34,20 @@ import java.util.stream.StreamSupport;
  *
  * @author Jerven Bolleman <jerven.bolleman@sib.swiss>
  */
-public interface StepHandleIterator extends Iterator<StepHandle>, AutoCloseable {
+public interface StepHandleIterator<S extends StepHandle> extends Iterator<S>, AutoCloseable {
 
-    public static StepHandleIterator wrap(StepHandleIterator steps, Predicate<StepHandle> predicate) {
-        return new WrappingStepHandleIterator(steps, predicate);
+    public static <S extends StepHandle> StepHandleIterator<S> wrap(StepHandleIterator<S> steps, Predicate<S> predicate) {
+        return new WrappingStepHandleIterator<S>(steps, predicate);
     }
 
-    static class WrappingStepHandleIterator implements StepHandleIterator {
+    static class WrappingStepHandleIterator<S extends StepHandle> implements StepHandleIterator<S> {
 
-        private final Iterator<StepHandle> st;
+        private final Iterator<S> st;
         private final StepHandleIterator steps;
 
-        WrappingStepHandleIterator(StepHandleIterator steps, Predicate<StepHandle> predicate) {
+        WrappingStepHandleIterator(StepHandleIterator<S> steps, Predicate<S> predicate) {
             this.steps = steps;
-            Spliterator<StepHandle> spliterator = Spliterators.spliteratorUnknownSize(
+            Spliterator<S> spliterator = Spliterators.spliteratorUnknownSize(
                     steps, Spliterator.NONNULL);
             st = StreamSupport.stream(spliterator, false)
                     .filter(predicate)
@@ -60,7 +60,7 @@ public interface StepHandleIterator extends Iterator<StepHandle>, AutoCloseable 
         }
 
         @Override
-        public StepHandle next() {
+        public S next() {
             return st.next();
         }
 

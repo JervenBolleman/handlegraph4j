@@ -29,7 +29,7 @@ import java.nio.charset.StandardCharsets;
  *
  * @author Jerven Bolleman <jerven.bolleman@sib.swiss>
  */
-class ShortAmbiguousSequence implements Sequence {
+public class ShortAmbiguousSequence implements Sequence {
 
     private static final int BITS_USED_FOR_DNA = 56;
     private static final long TYPE = 0b01000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000l;
@@ -64,15 +64,15 @@ class ShortAmbiguousSequence implements Sequence {
     private static final long GC_COUNT_MASK = ONLY_G | ONLY_C;
     private final long value;
 
-    ShortAmbiguousSequence(long value) {
+    public ShortAmbiguousSequence(long value) {
         this.value = value;
     }
 
-    ShortAmbiguousSequence(byte[] input) {
+    public ShortAmbiguousSequence(byte[] input) {
         value = encode(input);
     }
 
-    ShortAmbiguousSequence(String input) {
+    public ShortAmbiguousSequence(String input) {
         long code = encode(input.getBytes(StandardCharsets.US_ASCII));
         value = code;
     }
@@ -197,8 +197,8 @@ class ShortAmbiguousSequence implements Sequence {
     public int hashCode() {
         return length() * GCcount(value);
     }
-    
-    public static int GCcount(long value){
+
+    public static int GCcount(long value) {
         return Long.bitCount(value & GC_COUNT_MASK);
     }
 
@@ -217,6 +217,8 @@ class ShortAmbiguousSequence implements Sequence {
     public String toString() {
         return asString();
     }
-    
-    
+
+    public long asLong() {
+        return value;
+    }
 }

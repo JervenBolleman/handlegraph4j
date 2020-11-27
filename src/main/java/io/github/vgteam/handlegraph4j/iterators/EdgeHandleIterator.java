@@ -25,11 +25,12 @@ package io.github.vgteam.handlegraph4j.iterators;
 
 import java.util.Iterator;
 import io.github.vgteam.handlegraph4j.EdgeHandle;
+import io.github.vgteam.handlegraph4j.NodeHandle;
 
 /**
  *
  * @author Jerven Bolleman <jerven.bolleman@sib.swiss>
  */
-public interface EdgeHandleIterator extends Iterator<EdgeHandle>, AutoCloseable {
+public interface EdgeHandleIterator<N extends NodeHandle, E extends EdgeHandle<N>> extends Iterator<E>, AutoCloseable {
 
 }

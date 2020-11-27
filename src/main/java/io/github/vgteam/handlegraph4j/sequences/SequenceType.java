@@ -31,7 +31,8 @@ public enum SequenceType {
 
     SHORT_KNOWN,
     SHORT_AMBIGUOUS,
-    LONG_VIA_ID;
+    LONG_VIA_ID,
+    OTHER;
     private static final boolean[] KNOWNS = new boolean[255];
 
     static {
@@ -54,6 +55,8 @@ public enum SequenceType {
                 return SHORT_AMBIGUOUS;
             case 2:
                 return LONG_VIA_ID;
+            case 3:
+                return OTHER;
         }
         return null;
     }

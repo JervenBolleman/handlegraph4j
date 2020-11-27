@@ -30,24 +30,36 @@ import io.github.vgteam.handlegraph4j.iterators.StepHandleIterator;
  *
  * @author Jerven Bolleman <jerven.bolleman@sib.swiss>
  */
-public interface PathGraph extends HandleGraph {
+public interface PathGraph<P extends PathHandle, S extends StepHandle, N extends NodeHandle, E extends EdgeHandle<N>> extends HandleGraph<N, E> {
 
-    public default StepHandleIterator stepsOfNodeHandle(NodeHandle nh) {
-        final StepHandleIterator steps = steps();
-        return StepHandleIterator.wrap(steps, s -> equalNodes(getNodeHandle(s), nh));
+    public N getNodeHandle(S s);
+
+    public default StepHandleIterator<S> stepsOfNodeHandle(N nh) {
+        final StepHandleIterator<S> steps = steps();
+        return StepHandleIterator.<S>wrap(steps, s -> equalNodes(getNodeHandle(s), nh));
     }
 
-    public PathHandleIterator paths();
+    public PathHandleIterator<P> paths();
 
-    public StepHandleIterator steps();
+    StepHandleIterator<S> steps();
+
+    public StepHandleIterator<S> stepsOf(P ph);
+
+    public P pathOfStep(S s);
+
+    public N nodeOfStep(S s);
     
-    public StepHandleIterator stepsOf(PathHandle ph);
+    public long rankOfStep(S s);
+
+    public boolean isCircular(P path);
 
     public default boolean isEmpty() {
-        try (PathHandleIterator iter = paths()) {
+        try ( PathHandleIterator<P> iter = paths()) {
             return !iter.hasNext();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
+
+    public String nameOfPath(P p);
 }

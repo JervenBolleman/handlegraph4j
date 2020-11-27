@@ -30,6 +30,6 @@ import io.github.vgteam.handlegraph4j.NodeHandle;
  *
  * @author Jerven Bolleman <jerven.bolleman@sib.swiss>
  */
-public interface NodeHandleIterator extends Iterator<NodeHandle>, AutoCloseable {
+public interface NodeHandleIterator<N extends NodeHandle> extends Iterator<N>, AutoCloseable {
 
 }

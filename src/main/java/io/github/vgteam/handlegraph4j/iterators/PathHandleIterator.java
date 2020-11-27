@@ -30,6 +30,6 @@ import io.github.vgteam.handlegraph4j.PathHandle;
  *
  * @author Jerven Bolleman <jerven.bolleman@sib.swiss>
  */
-public interface PathHandleIterator extends Iterator<PathHandle>, AutoCloseable {
+public interface PathHandleIterator<P extends PathHandle> extends Iterator<P>, AutoCloseable {
 
 }
