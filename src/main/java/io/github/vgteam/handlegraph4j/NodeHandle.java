@@ -28,4 +28,6 @@ package io.github.vgteam.handlegraph4j;
  * @author Jerven Bolleman <jerven.bolleman@sib.swiss>
  */
 public interface NodeHandle {
+    
+    public long id();
 }

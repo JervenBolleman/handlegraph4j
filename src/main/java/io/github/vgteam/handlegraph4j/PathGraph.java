@@ -23,8 +23,8 @@
  */
 package io.github.vgteam.handlegraph4j;
 
-import io.github.vgteam.handlegraph4j.iterators.PathHandleIterator;
-import io.github.vgteam.handlegraph4j.iterators.StepHandleIterator;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  *
@@ -34,32 +34,38 @@ public interface PathGraph<P extends PathHandle, S extends StepHandle, N extends
 
     public N getNodeHandle(S s);
 
-    public default StepHandleIterator<S> stepsOfNodeHandle(N nh) {
-        final StepHandleIterator<S> steps = steps();
-        return StepHandleIterator.<S>wrap(steps, s -> equalNodes(getNodeHandle(s), nh));
+    public default Stream<S> stepsOfNodeHandle(N nh) {
+        return steps().filter(s -> equalNodes(getNodeHandle(s), nh));
     }
 
-    public PathHandleIterator<P> paths();
+    public Stream<P> paths();
 
-    StepHandleIterator<S> steps();
+    Stream<S> steps();
 
-    public StepHandleIterator<S> stepsOf(P ph);
+    public Stream<S> stepsOf(P ph);
 
     public P pathOfStep(S s);
 
     public N nodeOfStep(S s);
-    
+
+    public long beginPositionOfStep(S s);
+
+    public long endPositionOfStep(S s);
+
     public long rankOfStep(S s);
+
+    public S stepByRankAndPath(P path, long rank);
 
     public boolean isCircular(P path);
 
     public default boolean isEmpty() {
-        try ( PathHandleIterator<P> iter = paths()) {
-            return !iter.hasNext();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        try ( Stream<P> iter = paths()) {
+            Optional<P> findAny = iter.findAny();
+            return findAny.isEmpty();
         }
     }
 
     public String nameOfPath(P p);
+
+    public P pathByName(String name);
 }

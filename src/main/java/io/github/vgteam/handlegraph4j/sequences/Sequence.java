@@ -24,13 +24,29 @@
 package io.github.vgteam.handlegraph4j.sequences;
 
 import static java.nio.charset.StandardCharsets.US_ASCII;
+import java.util.List;
 
 /**
  *
  * @author Jerven Bolleman <jerven.bolleman@sib.swiss>
  */
 public interface Sequence {
-
+    public static final List<Character> KNOWN_IUPAC_CODES = List.of('a',
+            't',
+            'c',
+            'g',
+            'm',
+            'r',
+            'w',
+            's',
+            'y',
+            'k',
+            'v',
+            'h',
+            'd',
+            'b',
+            'n'
+    );
     public static boolean equalByBytes(Sequence a, Sequence b) {
         final int aLength = a.length();
         if (aLength == b.length()) {
@@ -136,5 +152,15 @@ public interface Sequence {
             val[i] = byteAt(i);
         }
         return new String(val, US_ASCII);
+    }
+    
+    public static boolean stringCanBeDNASequence(String string) {
+        for (int i = 0; i < string.length(); i++) {
+            Character valueOf = string.charAt(i);
+            if (! KNOWN_IUPAC_CODES.contains(valueOf)) {
+                return false;
+            }
+        }
+        return true;
     }
 }
