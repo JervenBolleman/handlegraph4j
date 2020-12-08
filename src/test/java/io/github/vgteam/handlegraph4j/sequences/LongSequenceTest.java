@@ -105,7 +105,7 @@ public class LongSequenceTest {
             Arrays.fill(tttts, (byte) 't');
             Sequence instance = new LongSequence(aaaas);
             assertEquals(aaaas.length, instance.toString().length());
-            assertEquals(new String(tttts, StandardCharsets.US_ASCII), instance.reverseCompliment().toString());
+            assertEquals(new String(tttts, StandardCharsets.US_ASCII), instance.reverseComplement().toString());
         }
     }
 }

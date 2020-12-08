@@ -57,6 +57,7 @@ public class ShortKnownSequenceTest {
         byte expResult = 'a';
         byte result = instance.byteAt(offset);
         assertEquals(expResult, result, "expected a but got" + result);
+        assertEquals(SequenceType.SHORT_KNOWN, SequenceType.fromLong(instance.asLong()));
     }
 
     /**
@@ -68,14 +69,15 @@ public class ShortKnownSequenceTest {
         int expResult = 2;
         int result = instance.length();
         assertEquals(expResult, result);
+        assertEquals(SequenceType.SHORT_KNOWN, SequenceType.fromLong(instance.asLong()));
     }
 
     /**
-     * Test of reverseCompliment method, of class ShortKnownSequence.
+     * Test of reverseComplement method, of class ShortKnownSequence.
      */
     @Test
     public void testReverseCompliment() {
-        ShortKnownSequence instance = new ShortKnownSequence(new byte[]{'a', 'c', 't', 'g'}).reverseCompliment();
+        ShortKnownSequence instance = new ShortKnownSequence(new byte[]{'a', 'c', 't', 'g'}).reverseComplement();
         int expResult = 4;
         int result = instance.length();
         assertEquals(expResult, result);
@@ -83,6 +85,7 @@ public class ShortKnownSequenceTest {
         assertEquals((byte) 'g', instance.byteAt(1));
         assertEquals((byte) 'a', instance.byteAt(2));
         assertEquals((byte) 'c', instance.byteAt(3));
+        assertEquals(SequenceType.SHORT_KNOWN, SequenceType.fromLong(instance.asLong()));
     }
 
     @Test

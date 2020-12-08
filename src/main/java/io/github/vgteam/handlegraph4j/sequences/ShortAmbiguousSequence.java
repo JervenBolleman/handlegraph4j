@@ -203,7 +203,7 @@ public class ShortAmbiguousSequence implements Sequence {
     }
 
     @Override
-    public ShortAmbiguousSequence reverseCompliment() {
+    public ShortAmbiguousSequence reverseComplement() {
         long leftShiftBy1 = value << 1;
         long leftShifted = (leftShiftBy1 & T_OR_G) | (value & LENGTH_AND_TYPE_BITS);
         long rightShiftByOne = value >>> 1;

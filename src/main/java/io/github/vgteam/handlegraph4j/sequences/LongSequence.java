@@ -23,12 +23,14 @@
  */
 package io.github.vgteam.handlegraph4j.sequences;
 
-//import static io.github.vgteam.handlegraph4j.sequences.ShortAmbiguousSequence.MAX_LENGTH;
 import static io.github.vgteam.handlegraph4j.sequences.ShortAmbiguousSequence.BITS_PER_NUCLEOTIDE;
 import static java.nio.charset.StandardCharsets.US_ASCII;
 import java.util.Arrays;
 
 /*
+ * A sequence implementation that uses 4 bits per nucleotide.
+ * This includes all possible IUPAC ambiguous codes.
+ * The representation is easy to vectorize.
  * @author Jerven Bolleman <jerven.bolleman@sib.swiss>
  */
 public class LongSequence implements Sequence {
@@ -50,6 +52,11 @@ public class LongSequence implements Sequence {
         this.length = length;
     }
 
+    /**
+     * Encode the ASCII encoded IUPAC DNA string into a new Sequence object.
+     *
+     * @param sequence
+     */
     public LongSequence(byte[] sequence) {
         this.length = sequence.length;
         int requiredField = this.length / MAX_LENGTH;
@@ -73,6 +80,11 @@ public class LongSequence implements Sequence {
         }
     }
 
+    /**
+     * Encode the ASCII encoded IUPAC DNA string into a long object.
+     *
+     * @param input
+     */
     static long encode(byte[] input) {
         long length = input.length;
         assert length <= MAX_LENGTH;
@@ -86,7 +98,7 @@ public class LongSequence implements Sequence {
     @Override
     public byte byteAt(int offset) {
         long seq = sequence[offset / MAX_LENGTH];
-        int subbyte =(offset % MAX_LENGTH) * 4;
+        int subbyte = (offset % MAX_LENGTH) * 4;
         int nonMasked = (int) (seq >>> subbyte) & 15;
         return ShortAmbiguousSequence.fromInt(nonMasked);
     }
@@ -101,6 +113,10 @@ public class LongSequence implements Sequence {
         return SequenceType.LONG_VIA_ID;
     }
 
+    /**
+     * HashCode is the length of the sequence and the GC count of the first 32
+     * nucleotide.
+     */
     @Override
     public int hashCode() {
         if (length == 0) {
@@ -125,7 +141,7 @@ public class LongSequence implements Sequence {
     }
 
     @Override
-    public Sequence reverseCompliment() {
+    public Sequence reverseComplement() {
         long[] ns = new long[length];
         for (int i = 0; i < sequence.length; i++) {
             ns[i] = binaryReverseComplement(sequence[i]);

@@ -111,7 +111,7 @@ public class ShortKnownSequence implements Sequence {
     }
 
     @Override
-    public ShortKnownSequence reverseCompliment() {
+    public ShortKnownSequence reverseComplement() {
         long reverse = binaryReverseComplement(value);
         return new ShortKnownSequence(reverse);
     }

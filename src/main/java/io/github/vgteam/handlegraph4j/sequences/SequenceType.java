@@ -47,7 +47,7 @@ public enum SequenceType {
     }
 
     public static SequenceType fromLong(long sequence) {
-        int typeId = (int) (sequence >>> 60);
+        int typeId = (int) (sequence >>> 62l);
         switch (typeId) {
             case 0:
                 return SHORT_KNOWN;

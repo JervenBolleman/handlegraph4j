@@ -61,11 +61,11 @@ public class ShortAmbiguousSequenceTest {
         instance = new ShortAmbiguousSequence(new byte[]{'A', 'C'});
         result = instance.byteAt(offset);
         assertEquals(expResult, result, "expected a but got" + result);
-        
+
         instance = new ShortAmbiguousSequence(new byte[]{'A', 'T'});
         assertEquals('a', instance.byteAt(0), "expected a but got " + (char) result);
         assertEquals('t', instance.byteAt(1), "expected t but got " + (char) result);
-        
+        assertEquals(SequenceType.SHORT_AMBIGUOUS, SequenceType.fromLong(instance.asLong()));
     }
 
     /**
@@ -73,7 +73,7 @@ public class ShortAmbiguousSequenceTest {
      */
     @Test
     public void testLength() {
-        Sequence instance = new ShortAmbiguousSequence(new byte[]{'a', 'c'});
+        ShortAmbiguousSequence instance = new ShortAmbiguousSequence(new byte[]{'a', 'c'});
         int expResult = 2;
         int result = instance.length();
         assertEquals(expResult, result);
@@ -84,6 +84,7 @@ public class ShortAmbiguousSequenceTest {
         assertEquals(12, instance.length());
         instance = new ShortAmbiguousSequence("actgactgactgac");
         assertEquals(14, instance.length());
+        assertEquals(SequenceType.SHORT_AMBIGUOUS, SequenceType.fromLong(instance.asLong()));
     }
 
     /**
@@ -97,27 +98,30 @@ public class ShortAmbiguousSequenceTest {
     }
 
     /**
-     * Test of reverseCompliment method, of class ShortAmbiguousSequence.
+     * Test of reverseComplement method, of class ShortAmbiguousSequence.
      */
     @Test
     public void testReverseCompliment() {
-        ShortAmbiguousSequence reverseCompliment = new ShortAmbiguousSequence(new byte[]{'g', 't', 'a', 'c','n'});
-        ShortAmbiguousSequence instance = new ShortAmbiguousSequence(new byte[]{'c', 'a', 't', 'g','n'}).reverseCompliment();
+        ShortAmbiguousSequence reverseCompliment = new ShortAmbiguousSequence(new byte[]{'g', 't', 'a', 'c', 'n'});
+        ShortAmbiguousSequence instance = new ShortAmbiguousSequence(new byte[]{'c', 'a', 't', 'g', 'n'}).reverseComplement();
         int expResult = 5;
         assertEquals(expResult, reverseCompliment.length());
         assertEquals(expResult, instance.length());
-        for (Sequence e : new Sequence[]{reverseCompliment, instance}) {
+        ShortAmbiguousSequence[] toCheck = new ShortAmbiguousSequence[]{reverseCompliment, instance};
+        for (ShortAmbiguousSequence e : toCheck) {
             assertEquals((byte) 'g', e.byteAt(0));
             assertEquals((byte) 't', e.byteAt(1));
             assertEquals((byte) 'a', e.byteAt(2));
             assertEquals((byte) 'c', e.byteAt(3));
             assertEquals((byte) 'n', e.byteAt(4));
+            assertEquals(SequenceType.SHORT_AMBIGUOUS, SequenceType.fromLong(e.asLong()));
         }
     }
-    
-     @Test
+
+    @Test
     public void testToString() {
-        Sequence instance = new ShortAmbiguousSequence(new byte[]{'a', 'c','n'});
+        ShortAmbiguousSequence instance = new ShortAmbiguousSequence(new byte[]{'a', 'c', 'n'});
         assertEquals("acn", instance.toString());
+        assertEquals(SequenceType.SHORT_AMBIGUOUS, SequenceType.fromLong(instance.asLong()));
     }
 }
