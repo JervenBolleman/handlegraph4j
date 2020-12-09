@@ -131,13 +131,15 @@ public interface Sequence {
         switch (lowercase(nucleotide)) {
             case 'a':
             case 't':
-            case 'r':
             case 'w':
                 return false;
+            
             case 'c':
             case 'g':
+            case 'r':
             case 'm':
             case 's':
+            case 'y':
             case 'k':
             case 'v':
             case 'd':

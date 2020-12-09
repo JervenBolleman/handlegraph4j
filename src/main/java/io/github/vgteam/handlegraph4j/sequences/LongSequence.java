@@ -169,4 +169,8 @@ public class LongSequence implements Sequence {
         }
         return val;
     }
+
+    public long[] array() {
+        return sequence;
+    }
 }

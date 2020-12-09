@@ -95,6 +95,17 @@ public class ShortAmbiguousSequenceTest {
         Sequence instance = new ShortAmbiguousSequence(new byte[]{'a', 'c'});
         int expResult = 2;
         assertEquals(expResult, instance.hashCode());
+        instance = new ShortAmbiguousSequence(new byte[]{'a', 'r'});
+        assertEquals(2, instance.hashCode());
+        
+        instance = new ShortAmbiguousSequence(new byte[]{'a', 'w'});
+        assertEquals(0, instance.hashCode());
+        
+        instance = new ShortAmbiguousSequence(new byte[]{'a', 's'});
+        assertEquals(2, instance.hashCode());
+        
+        instance = new ShortAmbiguousSequence(new byte[]{'c', 's'});
+        assertEquals(4, instance.hashCode());
     }
 
     /**

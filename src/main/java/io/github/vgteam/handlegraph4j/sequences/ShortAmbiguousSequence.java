@@ -195,11 +195,7 @@ public class ShortAmbiguousSequence implements Sequence {
 
     @Override
     public int hashCode() {
-        return length() * GCcount(value);
-    }
-
-    public static int GCcount(long value) {
-        return Long.bitCount(value & GC_COUNT_MASK);
+        return Sequence.hashCode(this);
     }
 
     @Override

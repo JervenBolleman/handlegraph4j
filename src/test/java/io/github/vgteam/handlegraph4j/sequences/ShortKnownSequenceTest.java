@@ -70,6 +70,11 @@ public class ShortKnownSequenceTest {
         int result = instance.length();
         assertEquals(expResult, result);
         assertEquals(SequenceType.SHORT_KNOWN, SequenceType.fromLong(instance.asLong()));
+
+        instance = new ShortKnownSequence(new byte[]{'a'});
+        result = instance.length();
+        assertEquals(1, result);
+        assertEquals(SequenceType.SHORT_KNOWN, SequenceType.fromLong(instance.asLong()));
     }
 
     /**
@@ -94,7 +99,7 @@ public class ShortKnownSequenceTest {
         int expResult = 2;
         assertEquals(expResult, instance.hashCode());
     }
-    
+
     @Test
     public void testToString() {
         Sequence instance = new ShortKnownSequence(new byte[]{'a', 'c'});
