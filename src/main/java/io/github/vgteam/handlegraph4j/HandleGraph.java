@@ -23,8 +23,8 @@
  */
 package io.github.vgteam.handlegraph4j;
 
+import io.github.vgteam.handlegraph4j.sequences.AutoClosedIterator;
 import io.github.vgteam.handlegraph4j.sequences.Sequence;
-import java.util.stream.Stream;
 
 /**
  * A HandleGraph contains the topology of a variation graph.
@@ -92,9 +92,15 @@ public interface HandleGraph<N extends NodeHandle, E extends EdgeHandle<N>> {
      * @return true if the edge is in the graph.
      */
     public default boolean hasEdge(N left, N right) {
-        try ( Stream<E> edges = followEdgesToWardsTheRight(left)) {
-            return edges.anyMatch(e -> equalNodes(right, e.right()));
+        try ( AutoClosedIterator<E> edges = followEdgesToWardsTheRight(left)) {
+            while (edges.hasNext()) {
+                E next = edges.next();
+                if (equalNodes(right, next.right())) {
+                    return true;
+                }
+            }
         }
+        return false;
     }
 
     /**
@@ -113,9 +119,14 @@ public interface HandleGraph<N extends NodeHandle, E extends EdgeHandle<N>> {
      * @return the coumt of edges
      */
     public default long edgeCount() {
-        try ( Stream<E> edges = edges()) {
-            return edges.count();
+        long count = 0;
+        try ( AutoClosedIterator<E> edges = edges()) {
+            while (edges.hasNext()) {
+                edges.next();
+                count++;
+            }
         }
+        return count;
     }
 
     /**
@@ -124,9 +135,14 @@ public interface HandleGraph<N extends NodeHandle, E extends EdgeHandle<N>> {
      * @return the number of nodes in the graph
      */
     public default long nodeCount() {
-        try ( Stream<N> nodes = nodes()) {
-            return nodes.count();
+        long count = 0;
+        try ( AutoClosedIterator<N> nodes = nodes()) {
+            while (nodes.hasNext()) {
+                nodes.next();
+                count++;
+            }
         }
+        return count++;
     }
 
     /**
@@ -135,12 +151,15 @@ public interface HandleGraph<N extends NodeHandle, E extends EdgeHandle<N>> {
      * @return total sequence length
      */
     public default long totalNodeSequenceLength() {
-        try ( Stream<N> nodes = nodes()) {
-            return nodes.map(this::sequenceOf)
-                    .mapToInt(Sequence::length)
-                    .mapToLong(Long::valueOf)
-                    .sum();
+        long sum = 0;
+        try ( AutoClosedIterator<N> nodes = nodes()) {
+            while (nodes.hasNext()) {
+                N node = nodes.next();
+                Sequence seq = sequenceOf(node);
+                sum += seq.length();
+            }
         }
+        return sum;
     }
 
     /**
@@ -204,7 +223,7 @@ public interface HandleGraph<N extends NodeHandle, E extends EdgeHandle<N>> {
      * @return A Stream of Edges that may hold native resources and must be
      * closed after use.
      */
-    public Stream<E> followEdgesToWardsTheRight(N left);
+    public AutoClosedIterator<E> followEdgesToWardsTheRight(N left);
 
     /**
      * Find the nodes that are connected as the left side of edges where the
@@ -215,21 +234,21 @@ public interface HandleGraph<N extends NodeHandle, E extends EdgeHandle<N>> {
      * @return A Stream of Edges that may hold native resources and must be
      * closed after use.
      */
-    public Stream<E> followEdgesToWardsTheLeft(N right);
+    public AutoClosedIterator<E> followEdgesToWardsTheLeft(N right);
 
     /**
      *
      * @return all edges that exist in the HandleGraph. This may hold on to
      * native resources and must be closed after use.
      */
-    public Stream<E> edges();
+    public AutoClosedIterator<E> edges();
 
     /**
      *
      * @return all nodes that exist in the HandleGraph. This may hold on to
      * native resources and must be closed after use.
      */
-    public Stream<N> nodes();
+    public AutoClosedIterator<N> nodes();
 
     /**
      * Retrieve a specific base of sequence associated with a node.
@@ -282,8 +301,5 @@ public interface HandleGraph<N extends NodeHandle, E extends EdgeHandle<N>> {
      * @return a stream of nodes that have the given sequence. This stream may
      * hold onto native resources and must be closed after use
      */
-    public default Stream<N> nodesWithSequence(Sequence s) {
-        return nodes()
-                .filter(n -> s.equals(sequenceOf(n)));
-    }
+    public AutoClosedIterator<N> nodesWithSequence(Sequence s);
 }

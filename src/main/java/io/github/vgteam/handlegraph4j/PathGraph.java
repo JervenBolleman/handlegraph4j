@@ -23,7 +23,9 @@
  */
 package io.github.vgteam.handlegraph4j;
 
+import io.github.vgteam.handlegraph4j.sequences.AutoClosedIterator;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
@@ -43,8 +45,9 @@ public interface PathGraph<P extends PathHandle, S extends StepHandle, N extends
      * @param nodeHandle the node to look for
      * @return a stream of steps, this stream must be closed after use
      */
-    public default Stream<S> stepsOfNodeHandle(N nodeHandle) {
-        return steps().filter(s -> equalNodes(nodeOfStep(s), nodeHandle));
+    public default AutoClosedIterator<S> stepsOfNodeHandle(N nodeHandle) {
+        Predicate<S> test = s -> equalNodes(nodeOfStep(s), nodeHandle);
+        return AutoClosedIterator.<S>filter(steps(), test);
     }
 
     /**
@@ -52,14 +55,14 @@ public interface PathGraph<P extends PathHandle, S extends StepHandle, N extends
      *
      * @return a stream of paths, this stream must be closed after use
      */
-    public Stream<P> paths();
+    public AutoClosedIterator<P> paths();
 
     /**
      * Return all StepHandles
      *
      * @return a stream of steps, this stream must be closed after use
      */
-    Stream<S> steps();
+    AutoClosedIterator<S> steps();
 
     /**
      * Return all StepsHandles on a path
@@ -67,7 +70,7 @@ public interface PathGraph<P extends PathHandle, S extends StepHandle, N extends
      * @param path
      * @return a stream of steps, this stream must be closed after use
      */
-    public Stream<S> stepsOf(P path);
+    public AutoClosedIterator<S> stepsOf(P path);
 
     /**
      * @param step to find out which path this step is on
@@ -119,9 +122,9 @@ public interface PathGraph<P extends PathHandle, S extends StepHandle, N extends
      * @return if there are any paths in this graph
      */
     public default boolean isEmpty() {
-        try ( Stream<P> iter = paths()) {
-            Optional<P> findAny = iter.findAny();
-            return findAny.isEmpty();
+        try ( AutoClosedIterator<P> iter = paths()) {
+            boolean hasNext = iter.hasNext();
+            return ! hasNext;
         }
     }
 
@@ -152,9 +155,14 @@ public interface PathGraph<P extends PathHandle, S extends StepHandle, N extends
      * @return the number of steps in the path
      */
     default public long stepCountInPath(P path) {
-        try ( Stream<S> steps = stepsOf(path)) {
-            return steps.count();
+        long count = 0;
+        try ( AutoClosedIterator<S> steps = stepsOf(path)) {
+            while (steps.hasNext()) {
+                steps.next();
+                count++;
+            }
         }
+        return count;
     }
 
     /**
@@ -164,11 +172,15 @@ public interface PathGraph<P extends PathHandle, S extends StepHandle, N extends
      * @return the step at the given position if it begins there
      */
     public default S stepOfPathByBeginPosition(P path, long position) {
-        try ( Stream<S> steps = stepsOf(path)) {
-            return steps.filter(s -> beginPositionOfStep(s) == position)
-                    .findAny()
-                    .orElse(null);
+        try ( AutoClosedIterator<S> steps = stepsOf(path)) {
+            while (steps.hasNext()) {
+                S next = steps.next();
+                if (beginPositionOfStep(next) == position) {
+                    return next;
+                }
+            }
         }
+        return null;
     }
 
     /**
@@ -178,10 +190,14 @@ public interface PathGraph<P extends PathHandle, S extends StepHandle, N extends
      * @return the step at the given position if it ends there otherwise null
      */
     public default S stepOfPathByEndPosition(P path, long position) {
-        try ( Stream<S> steps = stepsOf(path)) {
-            return steps.filter(s -> endPositionOfStep(s) == position)
-                    .findAny()
-                    .orElse(null);
+        try ( AutoClosedIterator<S> steps = stepsOf(path)) {
+            while (steps.hasNext()) {
+                S next = steps.next();
+                if (endPositionOfStep(next) == position) {
+                    return next;
+                }
+            }
         }
+        return null;
     }
 }
