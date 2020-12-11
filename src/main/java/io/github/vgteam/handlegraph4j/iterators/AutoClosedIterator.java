@@ -21,21 +21,40 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package io.github.vgteam.handlegraph4j.sequences;
+package io.github.vgteam.handlegraph4j.iterators;
 
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.PrimitiveIterator;
+import java.util.PrimitiveIterator.OfLong;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 /**
+ * An iterator that can be closed, used to replace the use of java streams. Java
+ * Streams are not guaranteed to be lazy and early terminating.
+ *
+ * Considering a significant of effort in handlegraphs is made to avoid over use
+ * of memory we should avoid these!
  *
  * @author Jerven Bolleman <jerven.bolleman@sib.swiss>
+ * @param <T>
  */
 public interface AutoClosedIterator<T> extends AutoCloseable, Iterator<T> {
 
+    
+    @Override
+    /**
+     * Overriding close to not throw an Exception (may still throw a Runtime 
+     * Exception.
+     */
+    public void close();
+
+    /**
+     * @param <T> 
+     * @param stat
+     * @return a new AutoClosedIterator of this single item.
+     */
     public static <T> AutoClosedIterator<T> of(T stat) {
 
         return new AutoClosedIterator<T>() {
@@ -63,9 +82,6 @@ public interface AutoClosedIterator<T> extends AutoCloseable, Iterator<T> {
         return from(Arrays.asList(ts).iterator());
     }
 
-    @Override
-    public void close();
-
     public static <T> AutoClosedIterator<T> from(Iterator<T> iter) {
         return new AutoClosedIterator<T>() {
             @Override
@@ -83,64 +99,6 @@ public interface AutoClosedIterator<T> extends AutoCloseable, Iterator<T> {
                 return iter.next();
             }
         };
-    }
-
-    static class CollectingOfLong implements PrimitiveIterator.OfLong {
-
-        private final Iterator<PrimitiveIterator.OfLong> iter;
-
-        public CollectingOfLong(Iterator<PrimitiveIterator.OfLong> iter) {
-            this.iter = iter;
-        }
-        PrimitiveIterator.OfLong current;
-
-        @Override
-        public long nextLong() {
-            return current.nextLong();
-        }
-
-        @Override
-        public boolean hasNext() {
-            if (current != null && current.hasNext()) {
-                return true;
-            }
-            while (iter.hasNext()) {
-                current = iter.next();
-                if (current.hasNext()) {
-                    return true;
-                }
-            }
-            return false;
-        }
-    }
-
-    static class CollectingOfIterator<T> implements Iterator<T> {
-
-        private final Iterator<Iterator<T>> iter;
-
-        public CollectingOfIterator(Iterator<Iterator<T>> iter) {
-            this.iter = iter;
-        }
-        Iterator<T> current;
-
-        @Override
-        public T next() {
-            return current.next();
-        }
-
-        @Override
-        public boolean hasNext() {
-            if (current != null && current.hasNext()) {
-                return true;
-            }
-            while (iter.hasNext()) {
-                current = iter.next();
-                if (current.hasNext()) {
-                    return true;
-                }
-            }
-            return false;
-        }
     }
 
     public static <T> AutoClosedIterator<T> filter(AutoClosedIterator<T> i, Predicate<T> test) {
@@ -174,6 +132,12 @@ public interface AutoClosedIterator<T> extends AutoCloseable, Iterator<T> {
         };
     }
 
+    /**
+     * Warning this might consume a lot of memory
+     * @param <I>
+     * @param s
+     * @return a wrapped stream iterator.
+     */
     public static <I> AutoClosedIterator<I> from(Stream<I> s) {
         Iterator<I> i = s.iterator();
         return new AutoClosedIterator<I>() {
@@ -194,6 +158,56 @@ public interface AutoClosedIterator<T> extends AutoCloseable, Iterator<T> {
         };
     }
 
+    public static <O> AutoClosedIterator<O> map(OfLong i, Function<Long, O> map) {
+        return new AutoClosedIterator<O>() {
+            @Override
+            public void close() {
+            }
+
+            @Override
+            public boolean hasNext() {
+                return i.hasNext();
+            }
+
+            @Override
+            public O next() {
+                return map.apply(i.nextLong());
+            }
+        };
+    }
+
+    /**
+     * @param <I>
+     * @param <O>
+     * @param i
+     * @param map
+     * @return a new iterator that lazily maps the internal iterator
+     */
+    public static <I, O> AutoClosedIterator<O> map(Iterator<I> i, Function<I, O> map) {
+        return new AutoClosedIterator<O>() {
+            @Override
+            public void close() {
+            }
+
+            @Override
+            public boolean hasNext() {
+                return i.hasNext();
+            }
+
+            @Override
+            public O next() {
+                return map.apply(i.next());
+            }
+        };
+    }
+
+    /**
+     * @param <I>
+     * @param <O>
+     * @param i
+     * @param map
+     * @return a new iterator that lazily maps the internal iterator
+     */
     public static <I, O> AutoClosedIterator<O> map(AutoClosedIterator<I> i, Function<I, O> map) {
         return new AutoClosedIterator<O>() {
             @Override
@@ -214,10 +228,20 @@ public interface AutoClosedIterator<T> extends AutoCloseable, Iterator<T> {
         };
     }
 
+    /**
+     * Turn multiple iterators into a single one
+     * @param <T>
+     * @param iter
+     * @return an iterator of all other iterators contents 
+     */
     public static <T> AutoClosedIterator<T> flatMap(AutoClosedIterator<AutoClosedIterator<T>> iter) {
-        return new Collect(iter);
+        return new ConcatenatingIterator(iter);
     }
-
+    
+    /**
+     * @param <T>
+     * @return an iterator without contents
+     */
     public static <T> AutoClosedIterator<T> empty() {
         return new AutoClosedIterator<T>() {
             @Override
@@ -235,47 +259,5 @@ public interface AutoClosedIterator<T> extends AutoCloseable, Iterator<T> {
                 throw new IllegalStateException();
             }
         };
-    }
-
-    public static class Collect<T> implements AutoClosedIterator<T> {
-
-        private final AutoClosedIterator<AutoClosedIterator<T>> iter;
-
-        public Collect(AutoClosedIterator<AutoClosedIterator<T>> iter) {
-            this.iter = iter;
-        }
-
-        public Collect(AutoClosedIterator<T> first, AutoClosedIterator<T> second) {
-            this.iter = from(Arrays.asList(first, second).iterator());
-        }
-        AutoClosedIterator<T> current;
-
-        @Override
-        public T next() {
-            return current.next();
-        }
-
-        @Override
-        public boolean hasNext() {
-            if (current != null && current.hasNext()) {
-                return true;
-            }
-            while (iter.hasNext()) {
-                current = iter.next();
-                if (current.hasNext()) {
-                    return true;
-                } else {
-                    current.close();
-                }
-            }
-            return false;
-        }
-
-        @Override
-        public void close() {
-            if (current != null) {
-                current.close();
-            }
-        }
     }
 }

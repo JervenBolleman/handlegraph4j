@@ -23,7 +23,7 @@
  */
 package io.github.vgteam.handlegraph4j;
 
-import io.github.vgteam.handlegraph4j.sequences.AutoClosedIterator;
+import io.github.vgteam.handlegraph4j.iterators.AutoClosedIterator;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.LongStream;
