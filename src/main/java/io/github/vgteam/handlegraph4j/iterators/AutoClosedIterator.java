@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.PrimitiveIterator.OfLong;
 import java.util.function.Function;
+import java.util.function.LongFunction;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -159,6 +160,24 @@ public interface AutoClosedIterator<T> extends AutoCloseable, Iterator<T> {
     }
 
     public static <O> AutoClosedIterator<O> map(OfLong i, Function<Long, O> map) {
+        return new AutoClosedIterator<O>() {
+            @Override
+            public void close() {
+            }
+
+            @Override
+            public boolean hasNext() {
+                return i.hasNext();
+            }
+
+            @Override
+            public O next() {
+                return map.apply(i.nextLong());
+            }
+        };
+    }
+    
+    public static <O> AutoClosedIterator<O> map(OfLong i, LongFunction<O> map) {
         return new AutoClosedIterator<O>() {
             @Override
             public void close() {
