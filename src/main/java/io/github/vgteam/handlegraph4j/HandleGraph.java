@@ -25,6 +25,7 @@ package io.github.vgteam.handlegraph4j;
 
 import io.github.vgteam.handlegraph4j.iterators.AutoClosedIterator;
 import io.github.vgteam.handlegraph4j.sequences.Sequence;
+import java.util.function.Function;
 
 /**
  * A HandleGraph contains the topology of a variation graph.
@@ -302,4 +303,15 @@ public interface HandleGraph<N extends NodeHandle, E extends EdgeHandle<N>> {
      * hold onto native resources and must be closed after use
      */
     public AutoClosedIterator<N> nodesWithSequence(Sequence s);
+
+    /**
+     * Iterate over all NodeHanlde Sequence pairs
+     * @return a iterator that must be closed of nodes with their sequences.
+     */
+    public default AutoClosedIterator<NodeSequence<N>> nodesWithTheirSequence() {
+        AutoClosedIterator<N> nodes = nodes();
+        Function<N, NodeSequence<N>> nodeToSeq
+                = node -> new NodeSequence<N>(node, sequenceOf(node));
+        return AutoClosedIterator.map(nodes, nodeToSeq);
+    }
 }
