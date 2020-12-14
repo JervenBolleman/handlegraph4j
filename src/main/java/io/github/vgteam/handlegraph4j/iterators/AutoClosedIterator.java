@@ -279,4 +279,34 @@ public interface AutoClosedIterator<T> extends AutoCloseable, Iterator<T> {
             }
         };
     }
+    
+    
+    public static <T> AutoClosedIterator<T> terminate(AutoClosedIterator<T> wrapped, Predicate<T> test) {
+        return new AutoClosedIterator<T>() {
+            T t = null;
+            @Override
+            public void close() {
+                wrapped.close();
+            }
+
+            @Override
+            public boolean hasNext() {
+                while(wrapped.hasNext() && t == null)
+                {
+                    T p = wrapped.next();
+                    if (test.test(p)){
+                        t = p;
+                        return true;
+                    } else
+                        return false;
+                }
+                return false;
+            }
+
+            @Override
+            public T next() {
+                return t;
+            }
+        };
+    }
 }
