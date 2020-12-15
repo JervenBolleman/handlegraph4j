@@ -45,8 +45,8 @@
     <distributionManagement>
         <repository>
             <id>github</id>
-            <name>GitHub OWNER Apache Maven Packages</name>
-            <url>https://maven.pkg.github.com/OWNER/REPOSITORY</url>
+            <name>GitHub Jerven Bolleman Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/JervenBolleman/handlegraph4j</url>
         </repository>
     </distributionManagement>
 </project>
