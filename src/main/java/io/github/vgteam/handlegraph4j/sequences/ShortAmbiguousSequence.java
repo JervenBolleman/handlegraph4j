@@ -29,7 +29,7 @@ import java.nio.charset.StandardCharsets;
  *
  * @author Jerven Bolleman <jerven.bolleman@sib.swiss>
  */
-class ShortAmbiguousSequence implements Sequence {
+public class ShortAmbiguousSequence implements Sequence {
 
     private static final int BITS_USED_FOR_DNA = 56;
     private static final long TYPE = 0b01000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000l;
@@ -64,15 +64,15 @@ class ShortAmbiguousSequence implements Sequence {
     private static final long GC_COUNT_MASK = ONLY_G | ONLY_C;
     private final long value;
 
-    ShortAmbiguousSequence(long value) {
+    public ShortAmbiguousSequence(long value) {
         this.value = value;
     }
 
-    ShortAmbiguousSequence(byte[] input) {
+    public ShortAmbiguousSequence(byte[] input) {
         value = encode(input);
     }
 
-    ShortAmbiguousSequence(String input) {
+    public ShortAmbiguousSequence(String input) {
         long code = encode(input.getBytes(StandardCharsets.US_ASCII));
         value = code;
     }
@@ -87,7 +87,7 @@ class ShortAmbiguousSequence implements Sequence {
         return code | (length << BITS_USED_FOR_DNA) | TYPE;
     }
 
-    private static long fromNucleotide(byte nucleotide) {
+    static long fromNucleotide(byte nucleotide) {
 
         switch (Sequence.lowercase(nucleotide)) {
             case 'a':
@@ -121,11 +121,11 @@ class ShortAmbiguousSequence implements Sequence {
             case 'n':
                 return N;
             default:
-                throw new IllegalArgumentException("Not known as non ambigous DNA");
+                throw new IllegalArgumentException("Not known as non ambigous DNA: " + (char) nucleotide);
         }
     }
 
-    private static byte fromInt(int nucleotide) {
+    static byte fromInt(int nucleotide) {
         switch (nucleotide) {
             case (int) A:
                 return 'a';
@@ -195,15 +195,11 @@ class ShortAmbiguousSequence implements Sequence {
 
     @Override
     public int hashCode() {
-        return length() * GCcount(value);
-    }
-    
-    public static int GCcount(long value){
-        return Long.bitCount(value & GC_COUNT_MASK);
+        return Sequence.hashCode(this);
     }
 
     @Override
-    public ShortAmbiguousSequence reverseCompliment() {
+    public ShortAmbiguousSequence reverseComplement() {
         long leftShiftBy1 = value << 1;
         long leftShifted = (leftShiftBy1 & T_OR_G) | (value & LENGTH_AND_TYPE_BITS);
         long rightShiftByOne = value >>> 1;
@@ -217,6 +213,8 @@ class ShortAmbiguousSequence implements Sequence {
     public String toString() {
         return asString();
     }
-    
-    
+
+    public long asLong() {
+        return value;
+    }
 }

@@ -23,44 +23,61 @@
  */
 package io.github.vgteam.handlegraph4j;
 
+import io.github.vgteam.handlegraph4j.sequences.Sequence;
+import java.util.Objects;
+
 /**
- * This class is aimed to be a opaque pointer to a Node in a Variation 
- * (HandleGraph)
- * 
- * This is a aimed to be an inline class once java Valhalla lands.
- * 
- * Therefore you are not allowed to use synchronized methods or depend
- * on the identity of the nodes to be preserved
+ * A Pair of a NodeHandle and normally the associated Sequence
  * 
  * @author Jerven Bolleman <jerven.bolleman@sib.swiss>
+ * @param <N>
  */
-public interface NodeHandle {
+public class NodeSequence<N extends NodeHandle> {
 
-    public long id();
+    private N node;
+    private Sequence sequence;
 
-    /**
-     * Compares a NodeHandle to another object.
-     *
-     * @param o The object to compare this StepHandle to.
-     * @return <tt>true</tt> if the other object is an instance of
-     * {@link Stephandle} and their internal-representations are equal,
-     * <tt>false</tt> otherwise.
-     *
-     * NodeHandles in equal considering graphs topology but with different
-     * implementations/containers are not required to return true.
-     *
-     * And may return true when they are not strictly the same node but just
-     * happen to have the same internal representation.
-     * 
-     * e.g. a Node from graph a with id 1 might be equal to a different node in 
-     * graph b which just happens to have the same id.
-     */
+    public NodeSequence(N node, Sequence sequence) {
+        this.node = node;
+        this.sequence = sequence;
+    }
+
+    public N node() {
+        return node;
+    }
+
+    public Sequence sequence() {
+        return sequence;
+    }
+
     @Override
-    public boolean equals(Object o);
+    public int hashCode() {
+        int hash = 5;
+        hash = 89 * hash + Objects.hashCode(this.node);
+        hash = 89 * hash + Objects.hashCode(this.sequence);
+        return hash;
+    }
 
-    /**
-     * @return A hash code for the NodeHandle.
-     */
     @Override
-    public int hashCode();
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final NodeSequence<?> other = (NodeSequence<?>) obj;
+        if (this.sequence != other.sequence) {
+            return false;
+        }
+        if (!Objects.equals(this.node, other.node)) {
+            return false;
+        }
+        return true;
+    }
+    
+    
 }

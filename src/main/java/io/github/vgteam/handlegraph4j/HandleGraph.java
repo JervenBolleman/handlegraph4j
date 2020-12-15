@@ -23,23 +23,36 @@
  */
 package io.github.vgteam.handlegraph4j;
 
+import io.github.vgteam.handlegraph4j.iterators.AutoClosedIterator;
 import io.github.vgteam.handlegraph4j.sequences.Sequence;
-import io.github.vgteam.handlegraph4j.iterators.EdgeHandleIterator;
-import io.github.vgteam.handlegraph4j.iterators.NodeHandleIterator;
+import java.util.function.Function;
 
 /**
+ * A HandleGraph contains the topology of a variation graph.
+ *
+ * Which nodes connect to which and what the sequence represented by a node is.
+ *
+ * As an implementation note the maximum of methods have a default
+ * implementation. Such implementations are far from optimal but guarantee that
+ * user code can depend on it.
  *
  * @author Jerven Bolleman <jerven.bolleman@sib.swiss>
+ * @param <N> Specific implementation of NodeHandle for a specific graph data
+ * structure
+ * @param <E> Specific implementation of EdgeHandle for a specific graph data
+ * structure
  */
-public interface HandleGraph {
+public interface HandleGraph<N extends NodeHandle, E extends EdgeHandle<N>> {
 
-    public default EdgeHandle edgeHandle(NodeHandle left, NodeHandle right) {
-        NodeHandle flippedRight = flip(right);
+    //TODO check that this holds, and does what we expect considering it's
+    //libhandlegraph provenance
+    public default E edgeHandle(N left, N right) {
+        N flippedRight = flip(right);
         long leftId = asLong(left);
         long flippedRightId = asLong(flippedRight);
         if (leftId == flippedRightId) {
             // Our left and the flipped pair's left would be equal.
-            NodeHandle flippedLeft = flip(left);
+            N flippedLeft = flip(left);
             long flippedLeftId = asLong(flippedLeft);
             if (flippedRightId > flippedLeftId) {
                 return edge(flippedRightId, flippedLeftId);
@@ -48,16 +61,23 @@ public interface HandleGraph {
         return edge(leftId, asLong(right));
     }
 
-    public default NodeHandle traverseEdgeHandle(EdgeHandle edge, NodeHandle left) {
-        if (left.equals(edge.getLeft())) {
+    /**
+     * Force finding "right" side of edge given a starting left side.
+     *
+     * @param edge
+     * @param left
+     * @return the next node
+     */
+    public default N traverseEdgeHandle(E edge, N left) {
+        if (left.equals(edge.left())) {
             // The cannonical orientation is the one we want
-            return edge.getRight();
-        } else if (left == flip(edge.getRight())) {
+            return edge.right();
+        } else if (left == flip(edge.right())) {
             // We really want the other orientation
             return flip(left);
         } else {
-            String leftMsg = asLong(edge.getLeft()) + " " + isReverseNodeHandle(edge.getLeft());
-            String rightMsg = asLong(edge.getRight()) + " " + isReverseNodeHandle(edge.getRight());
+            String leftMsg = asLong(edge.left()) + " " + isReverseNodeHandle(edge.left());
+            String rightMsg = asLong(edge.right()) + " " + isReverseNodeHandle(edge.right());
             throw new RuntimeException("Cannot view edge " + leftMsg
                     + " -> "
                     + rightMsg
@@ -65,72 +85,198 @@ public interface HandleGraph {
         }
     }
 
-    public default boolean hasEdge(NodeHandle left, NodeHandle right) {
-        boolean notSeen = true;
-        try (final EdgeHandleIterator iter = followEdges(left, false)) {
-            while (iter.hasNext()) {
-                EdgeHandle next = iter.next();
-                return (!next.equals(right));
+    /**
+     * Test if an edge is present in the graph.
+     *
+     * @param left
+     * @param right
+     * @return true if the edge is in the graph.
+     */
+    public default boolean hasEdge(N left, N right) {
+        try ( AutoClosedIterator<E> edges = followEdgesToWardsTheRight(left)) {
+            while (edges.hasNext()) {
+                E next = edges.next();
+                if (equalNodes(right, next.right())) {
+                    return true;
+                }
             }
-        } catch (Exception e) {
-            throw new RuntimeException("Could not close and EdgeHandleIterator", e);
         }
-        return !notSeen;
+        return false;
     }
 
+    /**
+     * Test if an edge is present in the graph.
+     *
+     * @param edge
+     * @return true if the edge is in the graph.
+     */
+    public default boolean hasEdge(E edge) {
+        return hasEdge(edge.left(), edge.right());
+    }
+
+    /**
+     * Count the numbers of edges in the graph.
+     *
+     * @return the coumt of edges
+     */
     public default long edgeCount() {
         long count = 0;
-        try (final EdgeHandleIterator iter = edges()) {
-            while (iter.hasNext()) {
-                iter.next();
+        try ( AutoClosedIterator<E> edges = edges()) {
+            while (edges.hasNext()) {
+                edges.next();
                 count++;
             }
-        } catch (Exception e) {
-            throw new RuntimeException("Could not close and EdgeHandleIterator", e);
         }
         return count;
     }
 
-    public default long getTotalNodeSequenceLength() {
+    /**
+     * Count the number of nodes in the graph.
+     *
+     * @return the number of nodes in the graph
+     */
+    public default long nodeCount() {
         long count = 0;
-        try (final NodeHandleIterator iter = nodes()) {
-            while (iter.hasNext()) {
-                iter.next();
+        try ( AutoClosedIterator<N> nodes = nodes()) {
+            while (nodes.hasNext()) {
+                nodes.next();
                 count++;
             }
-        } catch (Exception e) {
-            throw new RuntimeException("Could not close and EdgeHandleIterator", e);
         }
-        return count;
+        return count++;
     }
 
-    public boolean isReverseNodeHandle(NodeHandle nh);
-
-    public NodeHandle flip(NodeHandle nh);
-
-    public long asLong(NodeHandle nh);
-
-    public EdgeHandle edge(long flippedRightId, long flippedLeftId);
-
-    public EdgeHandleIterator followEdges(NodeHandle left, boolean b);
-
-    public EdgeHandleIterator edges();
-
-    public NodeHandleIterator nodes();
-
-
-
-  
-
-    public NodeHandle getNodeHandle(StepHandle s);
-
-    public default byte getBase(NodeHandle handle, int offset) {
-        return getSequence(handle).byteAt(offset);
+    /**
+     * Length of all sequences in the graph summed
+     *
+     * @return total sequence length
+     */
+    public default long totalNodeSequenceLength() {
+        long sum = 0;
+        try ( AutoClosedIterator<N> nodes = nodes()) {
+            while (nodes.hasNext()) {
+                N node = nodes.next();
+                Sequence seq = sequenceOf(node);
+                sum += seq.length();
+            }
+        }
+        return sum;
     }
 
-    public Sequence getSequence(NodeHandle handle);
+    /**
+     * Test if this node handle represents a reverse side of a node.
+     *
+     * @param nh
+     * @return true if the node is on the reverse strand
+     */
+    public boolean isReverseNodeHandle(N nh);
 
-    public default NodeHandle forward(NodeHandle nh) {
+    /**
+     * Convert a reverse node to a forward node, or visa versa.
+     *
+     * @param nh
+     * @return the flipped node
+     */
+    public N flip(N nh);
+
+    /**
+     * Extract the long node id from a NodeHandle.
+     *
+     * @param nh
+     * @return the id as a long
+     */
+    public long asLong(N nh);
+
+    /**
+     * Create a Node Handle for a given id
+     *
+     * @param id
+     * @return a NodeHandle reference.
+     */
+    public N fromLong(long id);
+
+    /**
+     * Create an EdgeHandle from to node ids.
+     *
+     * @param leftId
+     * @param rightId
+     * @return a potentially new Edge
+     */
+    public E edge(long leftId, long rightId);
+
+    /**
+     * Create an EdgeHandle from to node handles.
+     *
+     * @param left
+     * @param right
+     * @return a potentially new Edge
+     */
+    default public E edge(N left, N right) {
+        return edge(asLong(left), asLong(right));
+    }
+
+    /**
+     * Find the nodes that are connected as the right side of edges where the
+     * left parameter is the left of the edge. It only iterates going right
+     * once.
+     *
+     * @param left, node where traversal starts
+     * @return A Stream of Edges that may hold native resources and must be
+     * closed after use.
+     */
+    public AutoClosedIterator<E> followEdgesToWardsTheRight(N left);
+
+    /**
+     * Find the nodes that are connected as the left side of edges where the
+     * right parameter is the right side of the edge. It only iterates going
+     * right once.
+     *
+     * @param right, node where traversal starts
+     * @return A Stream of Edges that may hold native resources and must be
+     * closed after use.
+     */
+    public AutoClosedIterator<E> followEdgesToWardsTheLeft(N right);
+
+    /**
+     *
+     * @return all edges that exist in the HandleGraph. This may hold on to
+     * native resources and must be closed after use.
+     */
+    public AutoClosedIterator<E> edges();
+
+    /**
+     *
+     * @return all nodes that exist in the HandleGraph. This may hold on to
+     * native resources and must be closed after use.
+     */
+    public AutoClosedIterator<N> nodes();
+
+    /**
+     * Retrieve a specific base of sequence associated with a node.
+     *
+     * @param handle
+     * @param offset
+     * @return a byte representing standard IUPAC dna code in ASCII.
+     */
+    public default byte getBase(N handle, int offset) {
+        return sequenceOf(handle).byteAt(offset);
+    }
+
+    /**
+     * Return the sequence associated with a handle
+     *
+     * @param handle
+     * @return a Sequence
+     */
+    public Sequence sequenceOf(N handle);
+
+    /**
+     * Return a the forward side of a handle, which might be the handle itself.
+     *
+     * @param nh
+     * @return the forward handle
+     */
+    public default N forward(N nh) {
         if (isReverseNodeHandle(nh)) {
             return flip(nh);
         } else {
@@ -138,5 +284,34 @@ public interface HandleGraph {
         }
     }
 
-    public boolean equalNodes(NodeHandle n, NodeHandle nh);
+    /**
+     * Test if two nodes are equals, by identity (id value).
+     *
+     * @param l
+     * @param r
+     * @return true if nodes are the same.
+     */
+    public default boolean equalNodes(N l, N r) {
+        return asLong(l) == asLong(r);
+    }
+
+    /**
+     * Find all nodes with a certain sequence
+     *
+     * @param s, sequence you want to find in the graph
+     * @return a stream of nodes that have the given sequence. This stream may
+     * hold onto native resources and must be closed after use
+     */
+    public AutoClosedIterator<N> nodesWithSequence(Sequence s);
+
+    /**
+     * Iterate over all NodeHanlde Sequence pairs
+     * @return a iterator that must be closed of nodes with their sequences.
+     */
+    public default AutoClosedIterator<NodeSequence<N>> nodesWithTheirSequence() {
+        AutoClosedIterator<N> nodes = nodes();
+        Function<N, NodeSequence<N>> nodeToSeq
+                = node -> new NodeSequence<N>(node, sequenceOf(node));
+        return AutoClosedIterator.map(nodes, nodeToSeq);
+    }
 }

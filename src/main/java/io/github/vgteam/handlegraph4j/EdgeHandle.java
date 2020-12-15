@@ -24,13 +24,57 @@
 package io.github.vgteam.handlegraph4j;
 
 /**
+ * An edge is a connection between two NodeHandles that goes from left to right.
+ * leftNode -> rightNode.
+ *
+ * Determining which kind of edge it is depends on the nodes
+ * <ul>
+ * <li>forward to forward strand</li>
+ * <li>forward to reverse strand</li>
+ * <li>reverse to forward strand</li>
+ * <li>reverse to reverse strand</li>
+ * </ul>
  *
  * @author Jerven Bolleman <jerven.bolleman@sib.swiss>
+ * @param <N> the type of NodeHandles stored in this edge.
  */
-public interface EdgeHandle {
+public interface EdgeHandle<N extends NodeHandle> {
 
-    public NodeHandle getRight();
+    /**
+     *
+     * @return the right side of the edge
+     */
+    public N right();
 
-    public NodeHandle getLeft();
-    
+    /**
+     *
+     * @return the left side of the edge
+     */
+    public N left();
+
+    /**
+     * Compares a EdgeHandle to another object.
+     *
+     * @param o The object to compare this EdgeHandle to.
+     * @return <tt>true</tt> if the other object is an instance of
+     * {@link Edgehandle} and their internal-representations are equal,
+     * <tt>false</tt> otherwise.
+     *
+     * EdgeHandles in equal considering graphs topology but with different
+     * implementations/containers are not required to return true.
+     *
+     * And may return true when they are not strictly the same edge but just
+     * happen to have the same internal representation.
+     *
+     * e.g. a Edge from graph a with id 1-2 might be equal to a different edge
+     * in graph b which just happens to have the same id.
+     */
+    @Override
+    public boolean equals(Object o);
+
+    /**
+     * @return A hash code for the NodeHandle.
+     */
+    @Override
+    public int hashCode();
 }

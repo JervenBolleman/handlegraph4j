@@ -24,12 +24,37 @@
 package io.github.vgteam.handlegraph4j.iterators;
 
 import java.util.Iterator;
-import io.github.vgteam.handlegraph4j.PathHandle;
+import java.util.PrimitiveIterator;
 
 /**
  *
  * @author Jerven Bolleman <jerven.bolleman@sib.swiss>
  */
-public interface PathHandleIterator extends Iterator<PathHandle>, AutoCloseable {
+public class CollectingOfLong implements PrimitiveIterator.OfLong {
 
+    private final Iterator<PrimitiveIterator.OfLong> iter;
+
+    public CollectingOfLong(Iterator<PrimitiveIterator.OfLong> iter) {
+        this.iter = iter;
+    }
+    PrimitiveIterator.OfLong current;
+
+    @Override
+    public long nextLong() {
+        return current.nextLong();
+    }
+
+    @Override
+    public boolean hasNext() {
+        if (current != null && current.hasNext()) {
+            return true;
+        }
+        while (iter.hasNext()) {
+            current = iter.next();
+            if (current.hasNext()) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

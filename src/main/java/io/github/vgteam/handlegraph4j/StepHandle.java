@@ -24,9 +24,35 @@
 package io.github.vgteam.handlegraph4j;
 
 /**
+ * This class is aimed to be a opaque pointer to a Step on a Path in a Variation
+ * (HandleGraph)
+ *
+ * This is a aimed to be an inline class once java Valhalla lands.
+ *
+ * Therefore you are not allowed to use synchronized methods or depend on the
+ * identity of the steps to be preserved
  *
  * @author Jerven Bolleman <jerven.bolleman@sib.swiss>
  */
 public interface StepHandle {
-    
+
+    /**
+     * Compares a StepHandle to another object.
+     *
+     * @param o The object to compare this StepHandle to.
+     * @return <tt>true</tt> if the other object is an instance of
+     * {@link Stephandle} and their internal-representations are equal,
+     * <tt>false</tt> otherwise.
+     *
+     * StepHandles in equal considering graphs topology but with different
+     * implementations/containers are not required to return true
+     */
+    @Override
+    public boolean equals(Object o);
+
+    /**
+     * @return A hash code for the StepHandle.
+     */
+    @Override
+    public int hashCode();
 }

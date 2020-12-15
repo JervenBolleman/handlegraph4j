@@ -27,7 +27,7 @@ package io.github.vgteam.handlegraph4j.sequences;
  *
  * @author Jerven Bolleman <jerven.bolleman@sib.swiss>
  */
-class ShortKnownSequence implements Sequence {
+public class ShortKnownSequence implements Sequence {
 
     private static final int BITS_USED_FOR_DNA = 58;
     private static final int BITS_PER_NUCLEOTIDE = 2;
@@ -38,11 +38,11 @@ class ShortKnownSequence implements Sequence {
     private static final long REVERSE_COMPLIMENT_CGKEEPER = 0b11111110_10101010_10101010_10101010_10101010_10101010_10101010_10101010l;
     private final long value;
 
-    ShortKnownSequence(byte[] input) {
+    public ShortKnownSequence(byte[] input) {
         this.value = encode(input);
     }
 
-    ShortKnownSequence(long input) {
+    public ShortKnownSequence(long input) {
         this.value = input;
     }
 
@@ -54,6 +54,10 @@ class ShortKnownSequence implements Sequence {
             code = code | (fromNucleotide(input[j]) << i);
         }
         return code;
+    }
+
+    public long asLong() {
+        return value;
     }
 
     private static long fromNucleotide(byte nucleotide) {
@@ -107,7 +111,7 @@ class ShortKnownSequence implements Sequence {
     }
 
     @Override
-    public ShortKnownSequence reverseCompliment() {
+    public ShortKnownSequence reverseComplement() {
         long reverse = binaryReverseComplement(value);
         return new ShortKnownSequence(reverse);
     }

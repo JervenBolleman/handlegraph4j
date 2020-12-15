@@ -23,13 +23,51 @@
  */
 package io.github.vgteam.handlegraph4j.iterators;
 
-import java.util.Iterator;
-import io.github.vgteam.handlegraph4j.EdgeHandle;
+import static io.github.vgteam.handlegraph4j.iterators.AutoClosedIterator.from;
+import java.util.Arrays;
 
 /**
  *
  * @author Jerven Bolleman <jerven.bolleman@sib.swiss>
  */
-public interface EdgeHandleIterator extends Iterator<EdgeHandle>, AutoCloseable {
+class ConcatenatingIterator<T> implements AutoClosedIterator<T> {
 
+    private final AutoClosedIterator<AutoClosedIterator<T>> iter;
+
+    public ConcatenatingIterator(AutoClosedIterator<AutoClosedIterator<T>> iter) {
+        this.iter = iter;
+    }
+
+    public ConcatenatingIterator(AutoClosedIterator<T> first, AutoClosedIterator<T> second) {
+        this.iter = from(Arrays.asList(first, second).iterator());
+    }
+    AutoClosedIterator<T> current;
+
+    @Override
+    public T next() {
+        return current.next();
+    }
+
+    @Override
+    public boolean hasNext() {
+        if (current != null && current.hasNext()) {
+            return true;
+        }
+        while (iter.hasNext()) {
+            current = iter.next();
+            if (current.hasNext()) {
+                return true;
+            } else {
+                current.close();
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public void close() {
+        if (current != null) {
+            current.close();
+        }
+    }
 }

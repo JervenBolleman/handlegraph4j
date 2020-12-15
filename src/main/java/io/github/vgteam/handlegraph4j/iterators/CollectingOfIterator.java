@@ -24,12 +24,36 @@
 package io.github.vgteam.handlegraph4j.iterators;
 
 import java.util.Iterator;
-import io.github.vgteam.handlegraph4j.NodeHandle;
 
 /**
  *
  * @author Jerven Bolleman <jerven.bolleman@sib.swiss>
  */
-public interface NodeHandleIterator extends Iterator<NodeHandle>, AutoCloseable {
+class CollectingOfIterator<T> implements Iterator<T> {
 
+    private final Iterator<Iterator<T>> iter;
+
+    public CollectingOfIterator(Iterator<Iterator<T>> iter) {
+        this.iter = iter;
+    }
+    Iterator<T> current;
+
+    @Override
+    public T next() {
+        return current.next();
+    }
+
+    @Override
+    public boolean hasNext() {
+        if (current != null && current.hasNext()) {
+            return true;
+        }
+        while (iter.hasNext()) {
+            current = iter.next();
+            if (current.hasNext()) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
