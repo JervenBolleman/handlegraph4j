@@ -29,13 +29,13 @@ package io.github.vgteam.handlegraph4j.sequences;
  */
 public class ShortKnownSequence implements Sequence {
 
-    private static final int BITS_USED_FOR_DNA = 58;
+    static final int BITS_USED_FOR_DNA = 56;
     private static final int BITS_PER_NUCLEOTIDE = 2;
 
     private static final long MASK = 3l;
     public static final int MAX_LENGTH = BITS_USED_FOR_DNA / BITS_PER_NUCLEOTIDE;
-    private static final long REVERSE_COMPLIMENT_TOGGLE = 0b00000001_01010101_01010101_01010101_01010101_01010101_01010101_01010101l;
-    private static final long REVERSE_COMPLIMENT_CGKEEPER = 0b11111110_10101010_10101010_10101010_10101010_10101010_10101010_10101010l;
+    private static final long REVERSE_COMPLIMENT_TOGGLE = 0b00000000_01010101_01010101_01010101_01010101_01010101_01010101_01010101l;
+    private static final long REVERSE_COMPLIMENT_CGKEEPER = 0b11111111_10101010_10101010_10101010_10101010_10101010_10101010_10101010l;
     private final long value;
 
     public ShortKnownSequence(byte[] input) {

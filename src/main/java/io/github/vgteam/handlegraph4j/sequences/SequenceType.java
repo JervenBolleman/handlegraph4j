@@ -29,11 +29,16 @@ package io.github.vgteam.handlegraph4j.sequences;
  */
 public enum SequenceType {
 
-    SHORT_KNOWN,
-    SHORT_AMBIGUOUS,
-    LONG_VIA_ID,
-    OTHER;
+    SHORT_KNOWN(0),
+    SHORT_AMBIGUOUS(1l << 62),
+    LONG_VIA_ID(2l << 62),
+    OTHER(3l << 62);
     private static final boolean[] KNOWNS = new boolean[255];
+    private final long code;
+
+    private SequenceType(long code) {
+        this.code = code;
+    }
 
     static {
         KNOWNS['a'] = true;
@@ -78,5 +83,9 @@ public enum SequenceType {
             }
         }
         return true;
+    }
+
+    public long code() {
+        return code;
     }
 }

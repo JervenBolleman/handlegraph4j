@@ -23,6 +23,8 @@
  */
 package io.github.vgteam.handlegraph4j.sequences;
 
+import static java.nio.charset.StandardCharsets.US_ASCII;
+import java.util.Arrays;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
@@ -42,7 +44,7 @@ public class ShortKnownSequenceTest {
     public void testEncode() {
         byte[] input = new byte[]{'a', 'c'};
 
-        long expResult = (2l << 58) | 0010;
+        long expResult = (2l << ShortKnownSequence.BITS_USED_FOR_DNA) | 0010;
         long result = ShortKnownSequence.encode(input);
         assertEquals(expResult, result);
     }
@@ -53,11 +55,16 @@ public class ShortKnownSequenceTest {
     @Test
     public void testByteAt() {
         int offset = 0;
-        ShortKnownSequence instance = new ShortKnownSequence(new byte[]{'a', 'c'});
-        byte expResult = 'a';
-        byte result = instance.byteAt(offset);
-        assertEquals(expResult, result, "expected a but got" + result);
-        assertEquals(SequenceType.SHORT_KNOWN, SequenceType.fromLong(instance.asLong()));
+//        ShortKnownSequence instance = new ShortKnownSequence(new byte[]{'a', 'c'});
+//        byte expResult = 'a';
+//        byte result = instance.byteAt(offset);
+//        assertEquals(expResult, result, "expected a but got" + result);
+//        assertEquals(SequenceType.SHORT_KNOWN, SequenceType.fromLong(instance.asLong()));
+
+        ShortKnownSequence instance2 = new ShortKnownSequence("AAATTTTCTGGAGTTCTAT".getBytes(US_ASCII));
+        byte result2 = instance2.byteAt(offset);
+        assertEquals((byte) 'a', result2, "expected a but got" + result2);
+        assertEquals(SequenceType.SHORT_KNOWN, SequenceType.fromLong(instance2.asLong()));
     }
 
     /**
@@ -104,5 +111,20 @@ public class ShortKnownSequenceTest {
     public void testToString() {
         Sequence instance = new ShortKnownSequence(new byte[]{'a', 'c'});
         assertEquals("ac", instance.toString());
+    }
+
+    @Test
+    public void testToString2() {
+        for (char c : new char[]{'a', 'c', 'g', 't'}) {
+            for (int i = -0; i < ShortKnownSequence.MAX_LENGTH; i++) {
+                char[] cseqa = new char[i];
+                Arrays.fill(cseqa, c);
+                String seq = new String(cseqa);
+                ShortKnownSequence instance = new ShortKnownSequence(seq.getBytes(US_ASCII));
+                assertEquals(seq, instance.toString());
+                assertEquals(SequenceType.SHORT_KNOWN, SequenceType.fromLong(instance.asLong()));
+                assertEquals(seq, instance.reverseComplement().reverseComplement().toString());
+            }
+        }
     }
 }

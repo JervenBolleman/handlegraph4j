@@ -158,7 +158,7 @@ public class ShortAmbiguousSequence implements Sequence {
             case (int) N:
                 return 'n';
             default:
-                throw new IllegalArgumentException("Not known as non ambigous DNA");
+                throw new IllegalArgumentException("Not known as non ambigous DNA"+nucleotide + " as char "+((char) nucleotide));
         }
     }
 
@@ -211,7 +211,12 @@ public class ShortAmbiguousSequence implements Sequence {
 
     @Override
     public String toString() {
-        return asString();
+        try {
+            return asString();
+        } catch (IllegalArgumentException e) {
+            System.err.println("Invalid sequence" + value);
+            throw e;
+        }
     }
 
     public long asLong() {

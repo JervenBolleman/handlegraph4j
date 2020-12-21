@@ -23,6 +23,7 @@
  */
 package io.github.vgteam.handlegraph4j.sequences;
 
+import java.util.Arrays;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
@@ -97,13 +98,13 @@ public class ShortAmbiguousSequenceTest {
         assertEquals(expResult, instance.hashCode());
         instance = new ShortAmbiguousSequence(new byte[]{'a', 'r'});
         assertEquals(2, instance.hashCode());
-        
+
         instance = new ShortAmbiguousSequence(new byte[]{'a', 'w'});
         assertEquals(0, instance.hashCode());
-        
+
         instance = new ShortAmbiguousSequence(new byte[]{'a', 's'});
         assertEquals(2, instance.hashCode());
-        
+
         instance = new ShortAmbiguousSequence(new byte[]{'c', 's'});
         assertEquals(4, instance.hashCode());
     }
@@ -134,5 +135,19 @@ public class ShortAmbiguousSequenceTest {
         ShortAmbiguousSequence instance = new ShortAmbiguousSequence(new byte[]{'a', 'c', 'n'});
         assertEquals("acn", instance.toString());
         assertEquals(SequenceType.SHORT_AMBIGUOUS, SequenceType.fromLong(instance.asLong()));
+    }
+
+    @Test
+    public void testToString2() {
+        for (Character c : Sequence.KNOWN_IUPAC_CODES) {
+            for (int i = -0; i < ShortAmbiguousSequence.MAX_LENGTH; i++) {
+                char[] cseqa = new char[i];
+                Arrays.fill(cseqa, c);
+                String seq = new String(cseqa);
+                ShortAmbiguousSequence instance = new ShortAmbiguousSequence(seq);
+                assertEquals(seq, instance.toString());
+                assertEquals(SequenceType.SHORT_AMBIGUOUS, SequenceType.fromLong(instance.asLong()));
+            }
+        }
     }
 }
