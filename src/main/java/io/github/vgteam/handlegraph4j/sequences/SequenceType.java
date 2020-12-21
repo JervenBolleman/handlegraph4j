@@ -23,6 +23,8 @@
  */
 package io.github.vgteam.handlegraph4j.sequences;
 
+import static java.nio.charset.StandardCharsets.US_ASCII;
+
 /**
  *
  * @author Jerven Bolleman <jerven.bolleman@sib.swiss>
@@ -34,6 +36,7 @@ public enum SequenceType {
     LONG_VIA_ID(2l << 62),
     OTHER(3l << 62);
     private static final boolean[] KNOWNS = new boolean[255];
+
     private final long code;
 
     private SequenceType(long code) {
@@ -64,6 +67,10 @@ public enum SequenceType {
                 return OTHER;
         }
         return null;
+    }
+    
+    public static Sequence fromString(String sequence) {
+        return fromByteArray(sequence.getBytes(US_ASCII));
     }
 
     public static Sequence fromByteArray(byte[] sequence) {
