@@ -120,9 +120,9 @@ public interface PathGraph<P extends PathHandle, S extends StepHandle, N extends
      * @return if there are any paths in this graph
      */
     public default boolean isEmpty() {
-        try ( AutoClosedIterator<P> iter = paths()) {
+        try (AutoClosedIterator<P> iter = paths()) {
             boolean hasNext = iter.hasNext();
-            return ! hasNext;
+            return !hasNext;
         }
     }
 
@@ -154,7 +154,22 @@ public interface PathGraph<P extends PathHandle, S extends StepHandle, N extends
      */
     default public long stepCountInPath(P path) {
         long count = 0;
-        try ( AutoClosedIterator<S> steps = stepsOf(path)) {
+        try (AutoClosedIterator<S> steps = stepsOf(path)) {
+            while (steps.hasNext()) {
+                steps.next();
+                count++;
+            }
+        }
+        return count;
+    }
+    
+    /**
+     *
+     * @return the number of steps in the graph over all paths
+     */
+    default public long stepCount() {
+        long count = 0;
+        try (AutoClosedIterator<S> steps = steps()) {
             while (steps.hasNext()) {
                 steps.next();
                 count++;
@@ -170,7 +185,7 @@ public interface PathGraph<P extends PathHandle, S extends StepHandle, N extends
      * @return the step at the given position if it begins there
      */
     public default S stepOfPathByBeginPosition(P path, long position) {
-        try ( AutoClosedIterator<S> steps = stepsOf(path)) {
+        try (AutoClosedIterator<S> steps = stepsOf(path)) {
             while (steps.hasNext()) {
                 S next = steps.next();
                 if (beginPositionOfStep(next) == position) {
@@ -188,7 +203,7 @@ public interface PathGraph<P extends PathHandle, S extends StepHandle, N extends
      * @return the step at the given position if it ends there otherwise null
      */
     public default S stepOfPathByEndPosition(P path, long position) {
-        try ( AutoClosedIterator<S> steps = stepsOf(path)) {
+        try (AutoClosedIterator<S> steps = stepsOf(path)) {
             while (steps.hasNext()) {
                 S next = steps.next();
                 if (endPositionOfStep(next) == position) {
@@ -197,5 +212,20 @@ public interface PathGraph<P extends PathHandle, S extends StepHandle, N extends
             }
         }
         return null;
+    }
+
+    /**
+     *
+     * @return the number of paths in this path graph
+     */
+    public default int pathCount() {
+        int pathCount = 0;
+        try (AutoClosedIterator<P> paths = paths()) {
+            while (paths.hasNext()) {
+                paths.next();
+                pathCount++;
+            }
+        }
+        return pathCount;
     }
 }
