@@ -254,7 +254,7 @@ public interface AutoClosedIterator<T> extends AutoCloseable, Iterator<T> {
      * @return an iterator of all other iterators contents 
      */
     public static <T> AutoClosedIterator<T> flatMap(AutoClosedIterator<AutoClosedIterator<T>> iter) {
-        return new ConcatenatingIterator(iter);
+        return new ConcatenatingIterator<T>(iter);
     }
     
     /**
@@ -281,6 +281,14 @@ public interface AutoClosedIterator<T> extends AutoCloseable, Iterator<T> {
     }
     
     
+    /**
+     * Early terminate the resulting iterator upon first
+     * T that returns true for the given predicate.
+     * @param <T>
+     * @param wrapped
+     * @param test
+     * @return An iterator that takes elements from wrapped until the predicate returns true for a potential value.
+     */
     public static <T> AutoClosedIterator<T> terminate(AutoClosedIterator<T> wrapped, Predicate<T> test) {
         return new AutoClosedIterator<T>() {
             T t = null;
