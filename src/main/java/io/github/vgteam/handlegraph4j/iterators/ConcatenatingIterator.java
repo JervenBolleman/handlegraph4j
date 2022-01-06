@@ -32,42 +32,42 @@ import java.util.Arrays;
  */
 class ConcatenatingIterator<T> implements AutoClosedIterator<T> {
 
-    private final AutoClosedIterator<AutoClosedIterator<T>> iter;
+	private final AutoClosedIterator<AutoClosedIterator<T>> iter;
+	private AutoClosedIterator<T> current;
 
-    public ConcatenatingIterator(AutoClosedIterator<AutoClosedIterator<T>> iter) {
-        this.iter = iter;
-    }
+	public ConcatenatingIterator(AutoClosedIterator<AutoClosedIterator<T>> iter) {
+		this.iter = iter;
+	}
 
-    public ConcatenatingIterator(AutoClosedIterator<T> first, AutoClosedIterator<T> second) {
-        this.iter = from(Arrays.asList(first, second).iterator());
-    }
-    AutoClosedIterator<T> current;
+	public ConcatenatingIterator(AutoClosedIterator<T> first, AutoClosedIterator<T> second) {
+		this.iter = from(Arrays.asList(first, second).iterator());
+	}
 
-    @Override
-    public T next() {
-        return current.next();
-    }
+	@Override
+	public T next() {
+		return current.next();
+	}
 
-    @Override
-    public boolean hasNext() {
-        if (current != null && current.hasNext()) {
-            return true;
-        }
-        while (iter.hasNext()) {
-            current = iter.next();
-            if (current.hasNext()) {
-                return true;
-            } else {
-                current.close();
-            }
-        }
-        return false;
-    }
+	@Override
+	public boolean hasNext() {
+		if (current != null && current.hasNext()) {
+			return true;
+		}
+		while (iter.hasNext()) {
+			current = iter.next();
+			if (current.hasNext()) {
+				return true;
+			} else {
+				current.close();
+			}
+		}
+		return false;
+	}
 
-    @Override
-    public void close() {
-        if (current != null) {
-            current.close();
-        }
-    }
+	@Override
+	public void close() {
+		if (current != null) {
+			current.close();
+		}
+	}
 }

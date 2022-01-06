@@ -79,7 +79,8 @@ public interface AutoClosedIterator<T> extends AutoCloseable, Iterator<T> {
         };
     }
 
-    public static <T> AutoClosedIterator<T> of(T... ts) {
+    @SafeVarargs
+	public static <T> AutoClosedIterator<T> of(T... ts) {
         return from(Arrays.asList(ts).iterator());
     }
 
@@ -113,6 +114,8 @@ public interface AutoClosedIterator<T> extends AutoCloseable, Iterator<T> {
 
             @Override
             public boolean hasNext() {
+            	if (next != null)
+            		return true;
                 while (next == null && i.hasNext()) {
                     var pn = i.next();
                     if (test.test(pn)) {
@@ -241,7 +244,8 @@ public interface AutoClosedIterator<T> extends AutoCloseable, Iterator<T> {
 
             @Override
             public O next() {
-                return map.apply(i.next());
+                I next = i.next();
+				return map.apply(next);
             }
 
         };
