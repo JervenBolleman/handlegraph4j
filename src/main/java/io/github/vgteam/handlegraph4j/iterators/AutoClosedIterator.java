@@ -78,10 +78,35 @@ public interface AutoClosedIterator<T> extends AutoCloseable, Iterator<T> {
             }
         };
     }
+   
+    public static <T> AutoClosedIterator<T> concat(AutoClosedIterator<T> first, AutoClosedIterator<T> second) {
+        return new AutoClosedIterator<T>() {
+        	private boolean useFirst = true;
+			@Override
+			public boolean hasNext() {
+				if (useFirst && first.hasNext()) {
+					return true;
+				} else {
+					return second.hasNext();
+				}
+			}
 
-    @SafeVarargs
-	public static <T> AutoClosedIterator<T> of(T... ts) {
-        return from(Arrays.asList(ts).iterator());
+			@Override
+			public T next() {
+				if (useFirst) {
+					T next = first.next();
+					useFirst = first.hasNext();
+					return next;
+				}
+				return second.next();
+			}
+
+			@Override
+			public void close() {
+				first.close();
+				second.close();
+			}
+		};
     }
 
     public static <T> AutoClosedIterator<T> from(Iterator<T> iter) {

@@ -23,9 +23,6 @@
  */
 package io.github.vgteam.handlegraph4j.iterators;
 
-import static io.github.vgteam.handlegraph4j.iterators.AutoClosedIterator.from;
-import java.util.Arrays;
-
 /**
  *
  * @author Jerven Bolleman <jerven.bolleman@sib.swiss>
@@ -37,10 +34,6 @@ class ConcatenatingIterator<T> implements AutoClosedIterator<T> {
 
 	public ConcatenatingIterator(AutoClosedIterator<AutoClosedIterator<T>> iter) {
 		this.iter = iter;
-	}
-
-	public ConcatenatingIterator(AutoClosedIterator<T> first, AutoClosedIterator<T> second) {
-		this.iter = from(Arrays.asList(first, second).iterator());
 	}
 
 	@Override
