@@ -269,6 +269,16 @@ public interface HandleGraph<N extends NodeHandle, E extends EdgeHandle<N>> {
      * @return a Sequence
      */
     public Sequence sequenceOf(N handle);
+    
+    /**
+     * Return the length of the sequence associated with a handle
+     *
+     * @param handle
+     * @return the length of a sequence
+     */
+    public default int sequenceLengthOf(N handle) {
+    	return sequenceOf(handle).length();
+    }
 
     /**
      * Return a the forward side of a handle, which might be the handle itself.
