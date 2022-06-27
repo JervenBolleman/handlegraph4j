@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package io.github.vgteam.handlegraph4j.sequences;
+package io.github.jervenbolleman.handlegraph4j.sequences;
 
 import static java.nio.charset.StandardCharsets.US_ASCII;
 import java.util.Arrays;

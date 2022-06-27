@@ -21,59 +21,37 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package io.github.vgteam.handlegraph4j;
+package io.github.jervenbolleman.handlegraph4j;
 
 /**
- * An edge is a connection between two NodeHandles that goes from left to right.
- * leftNode -> rightNode.
+ * This class is aimed to be a opaque pointer to a Step on a Path in a Variation
+ * (HandleGraph)
  *
- * Determining which kind of edge it is depends on the nodes
- * <ul>
- * <li>forward to forward strand</li>
- * <li>forward to reverse strand</li>
- * <li>reverse to forward strand</li>
- * <li>reverse to reverse strand</li>
- * </ul>
+ * This is a aimed to be an inline class once java Valhalla lands.
+ *
+ * Therefore you are not allowed to use synchronized methods or depend on the
+ * identity of the steps to be preserved
  *
  * @author Jerven Bolleman <jerven.bolleman@sib.swiss>
- * @param <N> the type of NodeHandles stored in this edge.
  */
-public interface EdgeHandle<N extends NodeHandle> {
+public interface StepHandle {
 
     /**
+     * Compares a StepHandle to another object.
      *
-     * @return the right side of the edge
-     */
-    public N right();
-
-    /**
-     *
-     * @return the left side of the edge
-     */
-    public N left();
-
-    /**
-     * Compares a EdgeHandle to another object.
-     *
-     * @param o The object to compare this EdgeHandle to.
+     * @param o The object to compare this StepHandle to.
      * @return <tt>true</tt> if the other object is an instance of
-     * {@link Edgehandle} and their internal-representations are equal,
+     * {@link Stephandle} and their internal-representations are equal,
      * <tt>false</tt> otherwise.
      *
-     * EdgeHandles in equal considering graphs topology but with different
-     * implementations/containers are not required to return true.
-     *
-     * And may return true when they are not strictly the same edge but just
-     * happen to have the same internal representation.
-     *
-     * e.g. a Edge from graph a with id 1-2 might be equal to a different edge
-     * in graph b which just happens to have the same id.
+     * StepHandles in equal considering graphs topology but with different
+     * implementations/containers are not required to return true
      */
     @Override
     public boolean equals(Object o);
 
     /**
-     * @return A hash code for the NodeHandle.
+     * @return A hash code for the StepHandle.
      */
     @Override
     public int hashCode();

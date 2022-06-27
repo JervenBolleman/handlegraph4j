@@ -21,39 +21,63 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package io.github.vgteam.handlegraph4j.iterators;
+package io.github.jervenbolleman.handlegraph4j;
 
-import java.util.Iterator;
+import io.github.jervenbolleman.handlegraph4j.sequences.Sequence;
+import java.util.Objects;
 
 /**
- *
+ * A Pair of a NodeHandle and normally the associated Sequence
+ * 
  * @author Jerven Bolleman <jerven.bolleman@sib.swiss>
+ * @param <N>
  */
-class CollectingOfIterator<T> implements Iterator<T> {
+public class NodeSequence<N extends NodeHandle> {
 
-    private final Iterator<Iterator<T>> iter;
+    private N node;
+    private Sequence sequence;
 
-    public CollectingOfIterator(Iterator<Iterator<T>> iter) {
-        this.iter = iter;
-    }
-    Iterator<T> current;
-
-    @Override
-    public T next() {
-        return current.next();
+    public NodeSequence(N node, Sequence sequence) {
+        this.node = node;
+        this.sequence = sequence;
     }
 
+    public N node() {
+        return node;
+    }
+
+    public Sequence sequence() {
+        return sequence;
+    }
+
     @Override
-    public boolean hasNext() {
-        if (current != null && current.hasNext()) {
+    public int hashCode() {
+        int hash = 5;
+        hash = 89 * hash + Objects.hashCode(this.node);
+        hash = 89 * hash + Objects.hashCode(this.sequence);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
             return true;
         }
-        while (iter.hasNext()) {
-            current = iter.next();
-            if (current.hasNext()) {
-                return true;
-            }
+        if (obj == null) {
+            return false;
         }
-        return false;
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final NodeSequence<?> other = (NodeSequence<?>) obj;
+        if (this.sequence != other.sequence) {
+            return false;
+        }
+        if (!Objects.equals(this.node, other.node)) {
+            return false;
+        }
+        return true;
     }
+    
+    
 }

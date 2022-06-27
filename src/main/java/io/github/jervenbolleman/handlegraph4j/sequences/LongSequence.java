@@ -21,10 +21,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package io.github.vgteam.handlegraph4j.sequences;
+package io.github.jervenbolleman.handlegraph4j.sequences;
 
-import static io.github.vgteam.handlegraph4j.sequences.ShortAmbiguousSequence.BITS_PER_NUCLEOTIDE;
+import static io.github.jervenbolleman.handlegraph4j.sequences.ShortAmbiguousSequence.BITS_PER_NUCLEOTIDE;
 import static java.nio.charset.StandardCharsets.US_ASCII;
+
 import java.util.Arrays;
 
 /*

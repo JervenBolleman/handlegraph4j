@@ -21,38 +21,40 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package io.github.vgteam.handlegraph4j;
+package io.github.jervenbolleman.handlegraph4j.iterators;
+
+import java.util.Iterator;
+import java.util.PrimitiveIterator;
 
 /**
- * This class is aimed to be a opaque pointer to a Step on a Path in a Variation
- * (HandleGraph)
- *
- * This is a aimed to be an inline class once java Valhalla lands.
- *
- * Therefore you are not allowed to use synchronized methods or depend on the
- * identity of the steps to be preserved
  *
  * @author Jerven Bolleman <jerven.bolleman@sib.swiss>
  */
-public interface StepHandle {
+public class CollectingOfLong implements PrimitiveIterator.OfLong {
 
-    /**
-     * Compares a StepHandle to another object.
-     *
-     * @param o The object to compare this StepHandle to.
-     * @return <tt>true</tt> if the other object is an instance of
-     * {@link Stephandle} and their internal-representations are equal,
-     * <tt>false</tt> otherwise.
-     *
-     * StepHandles in equal considering graphs topology but with different
-     * implementations/containers are not required to return true
-     */
-    @Override
-    public boolean equals(Object o);
+    private final Iterator<PrimitiveIterator.OfLong> iter;
 
-    /**
-     * @return A hash code for the StepHandle.
-     */
+    public CollectingOfLong(Iterator<PrimitiveIterator.OfLong> iter) {
+        this.iter = iter;
+    }
+    PrimitiveIterator.OfLong current;
+
     @Override
-    public int hashCode();
+    public long nextLong() {
+        return current.nextLong();
+    }
+
+    @Override
+    public boolean hasNext() {
+        if (current != null && current.hasNext()) {
+            return true;
+        }
+        while (iter.hasNext()) {
+            current = iter.next();
+            if (current.hasNext()) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

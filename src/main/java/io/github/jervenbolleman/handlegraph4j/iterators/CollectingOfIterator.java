@@ -21,63 +21,39 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package io.github.vgteam.handlegraph4j;
+package io.github.jervenbolleman.handlegraph4j.iterators;
 
-import io.github.vgteam.handlegraph4j.sequences.Sequence;
-import java.util.Objects;
+import java.util.Iterator;
 
 /**
- * A Pair of a NodeHandle and normally the associated Sequence
- * 
+ *
  * @author Jerven Bolleman <jerven.bolleman@sib.swiss>
- * @param <N>
  */
-public class NodeSequence<N extends NodeHandle> {
+class CollectingOfIterator<T> implements Iterator<T> {
 
-    private N node;
-    private Sequence sequence;
+    private final Iterator<Iterator<T>> iter;
 
-    public NodeSequence(N node, Sequence sequence) {
-        this.node = node;
-        this.sequence = sequence;
+    public CollectingOfIterator(Iterator<Iterator<T>> iter) {
+        this.iter = iter;
     }
+    Iterator<T> current;
 
-    public N node() {
-        return node;
-    }
-
-    public Sequence sequence() {
-        return sequence;
+    @Override
+    public T next() {
+        return current.next();
     }
 
     @Override
-    public int hashCode() {
-        int hash = 5;
-        hash = 89 * hash + Objects.hashCode(this.node);
-        hash = 89 * hash + Objects.hashCode(this.sequence);
-        return hash;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
+    public boolean hasNext() {
+        if (current != null && current.hasNext()) {
             return true;
         }
-        if (obj == null) {
-            return false;
+        while (iter.hasNext()) {
+            current = iter.next();
+            if (current.hasNext()) {
+                return true;
+            }
         }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final NodeSequence<?> other = (NodeSequence<?>) obj;
-        if (this.sequence != other.sequence) {
-            return false;
-        }
-        if (!Objects.equals(this.node, other.node)) {
-            return false;
-        }
-        return true;
+        return false;
     }
-    
-    
 }

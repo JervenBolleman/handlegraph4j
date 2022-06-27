@@ -21,9 +21,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package io.github.vgteam.handlegraph4j;
+package io.github.jervenbolleman.handlegraph4j;
 
-import io.github.vgteam.handlegraph4j.iterators.AutoClosedIterator;
+import io.github.jervenbolleman.handlegraph4j.iterators.AutoClosedIterator;
 import java.util.function.Predicate;
 import java.util.stream.LongStream;
 

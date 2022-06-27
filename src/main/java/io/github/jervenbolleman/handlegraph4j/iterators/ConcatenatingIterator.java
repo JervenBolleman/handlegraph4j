@@ -21,39 +21,46 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package io.github.vgteam.handlegraph4j.sequences;
-
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+package io.github.jervenbolleman.handlegraph4j.iterators;
 
 /**
  *
  * @author Jerven Bolleman <jerven.bolleman@sib.swiss>
  */
-public class SequenceTest {
-    
-    public SequenceTest() {
-    }
-        /**
-     * Test of lowercase method, of class Sequence.
-     */
-    @Test
-    public void testLowercase() {
-        assertEquals('a', Sequence.lowercase((byte) 'A'));
-        assertEquals('c', Sequence.lowercase((byte) 'C'));
-    }
+class ConcatenatingIterator<T> implements AutoClosedIterator<T> {
 
-    /**
-     * Test of maybeAGC method, of class Sequence.
-     */
-    @Test
-    public void testMaybeAGC() {
-        assertTrue(Sequence.maybeAGC((byte) 'c'));
-        assertTrue(Sequence.maybeAGC((byte) 'C'));
-        assertTrue(Sequence.maybeAGC((byte) 'g'));
-        assertTrue(Sequence.maybeAGC((byte) 'G'));
-        assertTrue(Sequence.maybeAGC((byte) 'N'));
-        assertFalse(Sequence.maybeAGC((byte) 'A'));
-        assertFalse(Sequence.maybeAGC((byte) 't'));
-    }
+	private final AutoClosedIterator<AutoClosedIterator<T>> iter;
+	private AutoClosedIterator<T> current;
+
+	public ConcatenatingIterator(AutoClosedIterator<AutoClosedIterator<T>> iter) {
+		this.iter = iter;
+	}
+
+	@Override
+	public T next() {
+		return current.next();
+	}
+
+	@Override
+	public boolean hasNext() {
+		if (current != null && current.hasNext()) {
+			return true;
+		}
+		while (iter.hasNext()) {
+			current = iter.next();
+			if (current.hasNext()) {
+				return true;
+			} else {
+				current.close();
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public void close() {
+		if (current != null) {
+			current.close();
+		}
+	}
 }

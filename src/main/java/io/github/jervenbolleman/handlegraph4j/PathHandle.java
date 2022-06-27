@@ -21,40 +21,39 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package io.github.vgteam.handlegraph4j.iterators;
-
-import java.util.Iterator;
-import java.util.PrimitiveIterator;
+package io.github.jervenbolleman.handlegraph4j;
 
 /**
- *
+/**
+ * This class is aimed to be a opaque pointer to a Path in a Variation 
+ * (PathGraph).
+ * 
+ * This is a aimed to be an inline class once java Valhalla lands.
+ * 
+ * Therefore you are not allowed to use synchronized methods or depend
+ * on the identity of the Path to be preserved.
+ * 
  * @author Jerven Bolleman <jerven.bolleman@sib.swiss>
  */
-public class CollectingOfLong implements PrimitiveIterator.OfLong {
+public interface PathHandle {
 
-    private final Iterator<PrimitiveIterator.OfLong> iter;
-
-    public CollectingOfLong(Iterator<PrimitiveIterator.OfLong> iter) {
-        this.iter = iter;
-    }
-    PrimitiveIterator.OfLong current;
-
+    /**
+     * Compares a PathHandle to another object.
+     *
+     * @param o The object to compare this PathHandle to.
+     * @return <tt>true</tt> if the other object is an instance of
+     * {@link Stephandle} and their internal-representations are equal,
+     * <tt>false</tt> otherwise.
+     *
+     * PathHandles in equal considering graphs topology but with different
+     * implementations/containers are not required to return true
+     */
     @Override
-    public long nextLong() {
-        return current.nextLong();
-    }
+    public boolean equals(Object o);
 
+    /**
+     * @return A hash code for the PathHandle.
+     */
     @Override
-    public boolean hasNext() {
-        if (current != null && current.hasNext()) {
-            return true;
-        }
-        while (iter.hasNext()) {
-            current = iter.next();
-            if (current.hasNext()) {
-                return true;
-            }
-        }
-        return false;
-    }
+    public int hashCode();
 }

@@ -21,9 +21,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package io.github.vgteam.handlegraph4j.iterators;
+package io.github.jervenbolleman.handlegraph4j.iterators;
 
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.PrimitiveIterator.OfLong;
 import java.util.function.Function;
