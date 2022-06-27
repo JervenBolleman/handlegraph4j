@@ -25,7 +25,7 @@ package io.github.jervenbolleman.handlegraph4j.sequences;
 
 /**
  *
- * @author Jerven Bolleman <jerven.bolleman@sib.swiss>
+ * @author <a href="mailto:jerven.bolleman@sib.swiss">Jerven Bolleman</a>
  */
 public class ShortKnownSequence implements Sequence {
 
@@ -33,19 +33,33 @@ public class ShortKnownSequence implements Sequence {
     private static final int BITS_PER_NUCLEOTIDE = 2;
 
     private static final long MASK = 3l;
+    /**
+     * The maximum number of nucleotides that could be in this Sequence
+     */
     public static final int MAX_LENGTH = BITS_USED_FOR_DNA / BITS_PER_NUCLEOTIDE;
     private static final long REVERSE_COMPLIMENT_TOGGLE = 0b00000000_01010101_01010101_01010101_01010101_01010101_01010101_01010101l;
     private static final long REVERSE_COMPLIMENT_CGKEEPER = 0b11111111_10101010_10101010_10101010_10101010_10101010_10101010_10101010l;
     private final long value;
 
+    /**
+     * A dna sequence that can be encoded in to this type
+     * @param input iupac ascii
+     */
     public ShortKnownSequence(byte[] input) {
         this.value = encode(input);
     }
 
+    /** 
+     * @param input a prior encoded value as long to get back an object
+     */
     public ShortKnownSequence(long input) {
         this.value = input;
     }
 
+    /**
+     * A to be encoded value
+     * @param input iupac ascii dna bytes
+     */
     static long encode(byte[] input) {
         long length = input.length;
         assert length <= MAX_LENGTH;
@@ -56,6 +70,10 @@ public class ShortKnownSequence implements Sequence {
         return code;
     }
 
+    /**
+     * 
+     * @return this sequence squeezed into a 64bit java long
+     */
     public long asLong() {
         return value;
     }
@@ -116,6 +134,11 @@ public class ShortKnownSequence implements Sequence {
         return new ShortKnownSequence(reverse);
     }
 
+    /**
+     * 
+     * @param value a long encoding in binary this a short string
+     * @return the dna complement again in a long value.
+     */
     public static long binaryReverseComplement(long value) {
         long cg = value & (REVERSE_COMPLIMENT_CGKEEPER);
         long toggle = value ^ REVERSE_COMPLIMENT_TOGGLE;

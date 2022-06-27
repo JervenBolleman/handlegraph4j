@@ -28,11 +28,11 @@ import static java.nio.charset.StandardCharsets.US_ASCII;
 
 import java.util.Arrays;
 
-/*
+/**
  * A sequence implementation that uses 4 bits per nucleotide.
  * This includes all possible IUPAC ambiguous codes.
  * The representation is easy to vectorize.
- * @author Jerven Bolleman <jerven.bolleman@sib.swiss>
+ * @author <a href="mailto:jerven.bolleman@sib.swiss">Jerven Bolleman</a>
  */
 public class LongSequence implements Sequence {
 
@@ -48,6 +48,11 @@ public class LongSequence implements Sequence {
     private final long[] sequence;
     private final int length;
 
+    /**
+     * 
+     * @param sequence that was prior encoded
+     * @param length the number of nucleotides in this sequence
+     */
     public LongSequence(long[] sequence, int length) {
         this.sequence = sequence;
         this.length = length;
@@ -56,7 +61,7 @@ public class LongSequence implements Sequence {
     /**
      * Encode the ASCII encoded IUPAC DNA string into a new Sequence object.
      *
-     * @param sequence
+     * @param sequence in ascii IUPAC
      */
     public LongSequence(byte[] sequence) {
         this.length = sequence.length;
@@ -84,7 +89,7 @@ public class LongSequence implements Sequence {
     /**
      * Encode the ASCII encoded IUPAC DNA string into a long object.
      *
-     * @param input
+     * @param input ASCII bytes for DNA
      */
     static long encode(byte[] input) {
         long length = input.length;
@@ -171,6 +176,10 @@ public class LongSequence implements Sequence {
         return val;
     }
 
+    /**
+     * 
+     * @return this sequence a long encoding
+     */
     public long[] array() {
         return sequence;
     }

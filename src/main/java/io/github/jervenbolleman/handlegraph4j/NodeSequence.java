@@ -29,23 +29,34 @@ import java.util.Objects;
 /**
  * A Pair of a NodeHandle and normally the associated Sequence
  * 
- * @author Jerven Bolleman <jerven.bolleman@sib.swiss>
+ * @author <a href="mailto:jerven.bolleman@sib.swiss">Jerven Bolleman</a>
  * @param <N>
  */
 public class NodeSequence<N extends NodeHandle> {
 
     private N node;
     private Sequence sequence;
-
+	/**
+	 * 
+	 * @param node to join with the sequence
+	 * @param sequence to join with the node
+	 */
     public NodeSequence(N node, Sequence sequence) {
         this.node = node;
         this.sequence = sequence;
     }
 
+    /**
+     * 
+     * @return the node
+     */
     public N node() {
         return node;
     }
 
+    /**
+     * @return the sequence
+     */
     public Sequence sequence() {
         return sequence;
     }

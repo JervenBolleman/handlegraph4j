@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  *
- * @author Jerven Bolleman <jerven.bolleman@sib.swiss>
+ * @author <a href="mailto:jerven.bolleman@sib.swiss">Jerven Bolleman</a>
  */
 public class ShortKnownSequenceTest {
 

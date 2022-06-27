@@ -29,7 +29,7 @@ import java.util.stream.LongStream;
 
 /**
  *
- * @author Jerven Bolleman <jerven.bolleman@sib.swiss>
+ * @author <a href="mailto:jerven.bolleman@sib.swiss">Jerven Bolleman</a>
  * @param <P> the type of PathHandle
  * @param <S> the type of StepHandle
  * @param <E> the type of EdgeHandle
@@ -65,7 +65,7 @@ public interface PathGraph<P extends PathHandle, S extends StepHandle, N extends
     /**
      * Return all StepsHandles on a path
      *
-     * @param path
+     * @param path to get all steps of
      * @return a stream of steps, this stream must be closed after use
      */
     public AutoClosedIterator<S> stepsOf(P path);
@@ -110,7 +110,7 @@ public interface PathGraph<P extends PathHandle, S extends StepHandle, N extends
     /**
      * Test is a path is a circular one, such as common in Bacterial DNA
      *
-     * @param path
+     * @param path to test for circularity
      * @return true if the last node equals the first node.
      */
     public boolean isCircular(P path);
@@ -128,7 +128,7 @@ public interface PathGraph<P extends PathHandle, S extends StepHandle, N extends
 
     /**
      *
-     * @param path
+     * @param path to find the name of
      * @return the name of the path
      */
     public String nameOfPath(P path);
@@ -142,14 +142,14 @@ public interface PathGraph<P extends PathHandle, S extends StepHandle, N extends
 
     /**
      *
-     * @param path
+     * @param path to find all positions in
      * @return all positions (begin or end) of all steps in this path
      */
     public LongStream positionsOf(P path);
 
     /**
      *
-     * @param path
+     * @param path to count the steps in
      * @return the number of steps in the path
      */
     default public long stepCountInPath(P path) {
@@ -180,8 +180,8 @@ public interface PathGraph<P extends PathHandle, S extends StepHandle, N extends
 
     /**
      *
-     * @param path
-     * @param position
+     * @param path step to find the position
+     * @param position to find if a step starts here
      * @return the step at the given position if it begins there
      */
     public default S stepOfPathByBeginPosition(P path, long position) {
@@ -198,8 +198,8 @@ public interface PathGraph<P extends PathHandle, S extends StepHandle, N extends
 
     /**
      *
-     * @param path
-     * @param position
+     * @param path to find the step in
+     * @param position the position of the step
      * @return the step at the given position if it ends there otherwise null
      */
     public default S stepOfPathByEndPosition(P path, long position) {

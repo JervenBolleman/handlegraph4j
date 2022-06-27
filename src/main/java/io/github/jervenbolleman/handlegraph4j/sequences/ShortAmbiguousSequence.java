@@ -27,7 +27,7 @@ import java.nio.charset.StandardCharsets;
 
 /**
  *
- * @author Jerven Bolleman <jerven.bolleman@sib.swiss>
+ * @author <a href="mailto:jerven.bolleman@sib.swiss">Jerven Bolleman</a>
  */
 public class ShortAmbiguousSequence implements Sequence {
 
@@ -60,23 +60,42 @@ public class ShortAmbiguousSequence implements Sequence {
     private static final long D = A | G | T;
     private static final long B = C | G | T;
     private static final long N = A | C | G | T;
+    /**
+     * The maximum number of nucleotides that could be in this Sequence
+     */
     public static final int MAX_LENGTH = BITS_USED_FOR_DNA / BITS_PER_NUCLEOTIDE;
-    private static final long GC_COUNT_MASK = ONLY_G | ONLY_C;
+    
     private final long value;
 
+    /**
+     * Rehydrate
+     * @param value aprior encoded sequence as long
+     */
     public ShortAmbiguousSequence(long value) {
         this.value = value;
     }
 
+    /**
+     * A to be encoded value
+     * @param input iupac ascii dna bytes
+     */
     public ShortAmbiguousSequence(byte[] input) {
         value = encode(input);
     }
 
+    /**
+     * A to be encoded value
+     * @param input iupac ascii dna chars
+     */
     public ShortAmbiguousSequence(String input) {
         long code = encode(input.getBytes(StandardCharsets.US_ASCII));
         value = code;
     }
 
+    /**
+     * A to be encoded value
+     * @param input iupac ascii dna bytes
+     */
     static long encode(byte[] input) {
         long length = input.length;
         assert length <= MAX_LENGTH;
@@ -219,6 +238,10 @@ public class ShortAmbiguousSequence implements Sequence {
         }
     }
 
+    /**
+     * 
+     * @return this sequence squeezed into a 64bit java long
+     */
     public long asLong() {
         return value;
     }

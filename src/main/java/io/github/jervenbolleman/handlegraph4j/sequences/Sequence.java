@@ -28,7 +28,7 @@ import java.util.List;
 
 /**
  *
- * @author Jerven Bolleman <jerven.bolleman@sib.swiss>
+ * @author <a href="mailto:jerven.bolleman@sib.swiss">Jerven Bolleman</a>
  */
 public interface Sequence {
 
@@ -55,8 +55,8 @@ public interface Sequence {
     /**
      * Test if all the nucleotides two sequences are the same
      *
-     * @param a
-     * @param b
+     * @param a sequence a
+     * @param b sequence b
      * @return if the sequences are logically equivalent
      */
     public static boolean equalByBytes(Sequence a, Sequence b) {
@@ -76,7 +76,7 @@ public interface Sequence {
     /**
      * Quick method to force a ASCII code to lowercase.
      *
-     * @param nucleotide
+     * @param nucleotide from ascii anycase
      * @return a guaranteed to be lowercase ASCII value
      */
     public static byte lowercase(byte nucleotide) {
@@ -86,7 +86,7 @@ public interface Sequence {
     /**
      * Give the IUPAC DNA nucleotide a to offset
      *
-     * @param offset
+     * @param offset in the static list
      * @return nucleotide ASCII code
      */
     public byte byteAt(int offset);
@@ -94,17 +94,21 @@ public interface Sequence {
     /**
      * The length in nucleotides of the Sequence
      *
-     * @return length
+     * @return length in nucleotides/basepairs
      */
     public int length();
 
+    /**
+     * 
+     * @return the encoding backing this Sequence
+     */
     public SequenceType getType();
 
     /**
      * Makes it possible for new implementations to easily find the required
      * hash code implementation.
      *
-     * @param t
+     * @param t the Sequence to hashcode
      * @return the hashcode required by contract
      */
     public static int hashCode(Sequence t) {
@@ -123,7 +127,7 @@ public interface Sequence {
      * Test if a nucleotide may be either a G or C, taking into account
      * ambiguity codes.
      *
-     * @param nucleotide
+     * @param nucleotide that may be a GC nucleotie
      * @return if the nucleotide could be a GC
      */
     static boolean maybeAGC(byte nucleotide) {
@@ -158,7 +162,7 @@ public interface Sequence {
     /**
      * Give the reverse complement of each nucleotide
      *
-     * @param nucleotide
+     * @param nucleotide to complement
      * @return it's reverse complement
      */
     static byte complement(byte nucleotide) {
@@ -217,7 +221,7 @@ public interface Sequence {
     /**
      * Test if a String contains only known IUPAC codes
      *
-     * @param string
+     * @param string to test if we can encode it
      * @return true if only known IUPAC DNA codes are present in the string
      */
     public static boolean stringCanBeDNASequence(String string) {
@@ -233,7 +237,7 @@ public interface Sequence {
     /**
      * Return true if the "byte:" representation of a sequence is equivalent.
      *
-     * @param obj
+     * @param obj the object to test for equality
      * @return equals if the obj is a Sequence and byte representation is the
      * same.
      */

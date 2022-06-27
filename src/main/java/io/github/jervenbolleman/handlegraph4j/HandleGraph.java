@@ -36,7 +36,7 @@ import java.util.function.Function;
  * implementation. Such implementations are far from optimal but guarantee that
  * user code can depend on it.
  *
- * @author Jerven Bolleman <jerven.bolleman@sib.swiss>
+ * @author <a href="mailto:jerven.bolleman@sib.swiss">Jerven Bolleman</a>
  * @param <N> Specific implementation of NodeHandle for a specific graph data
  * structure
  * @param <E> Specific implementation of EdgeHandle for a specific graph data
@@ -46,6 +46,12 @@ public interface HandleGraph<N extends NodeHandle, E extends EdgeHandle<N>> {
 
     //TODO check that this holds, and does what we expect considering it's
     //libhandlegraph provenance
+	/**
+	 * 
+	 * @param left node
+	 * @param right node
+	 * @return the created edge handle
+	 */
     public default E edgeHandle(N left, N right) {
         N flippedRight = flip(right);
         long leftId = asLong(left);
@@ -64,9 +70,9 @@ public interface HandleGraph<N extends NodeHandle, E extends EdgeHandle<N>> {
     /**
      * Force finding "right" side of edge given a starting left side.
      *
-     * @param edge
-     * @param left
-     * @return the next node
+     * @param edge to start traversal from
+     * @param left to end traversal at
+     * @return the next node the node that joins them?
      */
     public default N traverseEdgeHandle(E edge, N left) {
         if (left.equals(edge.left())) {
@@ -88,8 +94,8 @@ public interface HandleGraph<N extends NodeHandle, E extends EdgeHandle<N>> {
     /**
      * Test if an edge is present in the graph.
      *
-     * @param left
-     * @param right
+     * @param left the left edge
+     * @param right the right edge
      * @return true if the edge is in the graph.
      */
     public default boolean hasEdge(N left, N right) {
@@ -107,7 +113,7 @@ public interface HandleGraph<N extends NodeHandle, E extends EdgeHandle<N>> {
     /**
      * Test if an edge is present in the graph.
      *
-     * @param edge
+     * @param edge to test for presene
      * @return true if the edge is in the graph.
      */
     public default boolean hasEdge(E edge) {
@@ -117,7 +123,7 @@ public interface HandleGraph<N extends NodeHandle, E extends EdgeHandle<N>> {
     /**
      * Count the numbers of edges in the graph.
      *
-     * @return the coumt of edges
+     * @return the count of edges
      */
     public default long edgeCount() {
         long count = 0;
@@ -166,7 +172,7 @@ public interface HandleGraph<N extends NodeHandle, E extends EdgeHandle<N>> {
     /**
      * Test if this node handle represents a reverse side of a node.
      *
-     * @param nh
+     * @param nh node handle that may be on reverse
      * @return true if the node is on the reverse strand
      */
     public boolean isReverseNodeHandle(N nh);
@@ -174,7 +180,7 @@ public interface HandleGraph<N extends NodeHandle, E extends EdgeHandle<N>> {
     /**
      * Convert a reverse node to a forward node, or visa versa.
      *
-     * @param nh
+     * @param nh the node to reverse/flip
      * @return the flipped node
      */
     public N flip(N nh);
@@ -182,7 +188,7 @@ public interface HandleGraph<N extends NodeHandle, E extends EdgeHandle<N>> {
     /**
      * Extract the long node id from a NodeHandle.
      *
-     * @param nh
+     * @param nh give the long for the node in this graph
      * @return the id as a long
      */
     public long asLong(N nh);
@@ -190,7 +196,7 @@ public interface HandleGraph<N extends NodeHandle, E extends EdgeHandle<N>> {
     /**
      * Create a Node Handle for a given id
      *
-     * @param id
+     * @param id in long 
      * @return a NodeHandle reference.
      */
     public N fromLong(long id);
@@ -198,8 +204,8 @@ public interface HandleGraph<N extends NodeHandle, E extends EdgeHandle<N>> {
     /**
      * Create an EdgeHandle from to node ids.
      *
-     * @param leftId
-     * @param rightId
+     * @param leftId nodeId for the edge
+     * @param rightId nodeId for the edge
      * @return a potentially new Edge
      */
     public E edge(long leftId, long rightId);
@@ -207,8 +213,8 @@ public interface HandleGraph<N extends NodeHandle, E extends EdgeHandle<N>> {
     /**
      * Create an EdgeHandle from to node handles.
      *
-     * @param left
-     * @param right
+     * @param left the left node of the edge
+     * @param right the right node of the edge
      * @return a potentially new Edge
      */
     default public E edge(N left, N right) {
@@ -220,7 +226,7 @@ public interface HandleGraph<N extends NodeHandle, E extends EdgeHandle<N>> {
      * left parameter is the left of the edge. It only iterates going right
      * once.
      *
-     * @param left, node where traversal starts
+     * @param left node where traversal starts
      * @return A Stream of Edges that may hold native resources and must be
      * closed after use.
      */
@@ -231,7 +237,7 @@ public interface HandleGraph<N extends NodeHandle, E extends EdgeHandle<N>> {
      * right parameter is the right side of the edge. It only iterates going
      * right once.
      *
-     * @param right, node where traversal starts
+     * @param right node where traversal starts
      * @return A Stream of Edges that may hold native resources and must be
      * closed after use.
      */
@@ -254,8 +260,8 @@ public interface HandleGraph<N extends NodeHandle, E extends EdgeHandle<N>> {
     /**
      * Retrieve a specific base of sequence associated with a node.
      *
-     * @param handle
-     * @param offset
+     * @param handle the node to get a sequence 
+     * @param offset inside the nodes sequence
      * @return a byte representing standard IUPAC dna code in ASCII.
      */
     public default byte getBase(N handle, int offset) {
@@ -265,7 +271,7 @@ public interface HandleGraph<N extends NodeHandle, E extends EdgeHandle<N>> {
     /**
      * Return the sequence associated with a handle
      *
-     * @param handle
+     * @param handle to fetch the sequence of
      * @return a Sequence
      */
     public Sequence sequenceOf(N handle);
@@ -273,7 +279,7 @@ public interface HandleGraph<N extends NodeHandle, E extends EdgeHandle<N>> {
     /**
      * Return the length of the sequence associated with a handle
      *
-     * @param handle
+     * @param handle to get sequence length of
      * @return the length of a sequence
      */
     public default int sequenceLengthOf(N handle) {
@@ -283,7 +289,7 @@ public interface HandleGraph<N extends NodeHandle, E extends EdgeHandle<N>> {
     /**
      * Return a the forward side of a handle, which might be the handle itself.
      *
-     * @param nh
+     * @param nh the node
      * @return the forward handle
      */
     public default N forward(N nh) {
@@ -296,9 +302,10 @@ public interface HandleGraph<N extends NodeHandle, E extends EdgeHandle<N>> {
 
     /**
      * Test if two nodes are equals, by identity (id value).
+     * Assumes they come from the same graph!
      *
-     * @param l
-     * @param r
+     * @param l one node
+     * @param r an other node
      * @return true if nodes are the same.
      */
     public default boolean equalNodes(N l, N r) {
@@ -308,7 +315,7 @@ public interface HandleGraph<N extends NodeHandle, E extends EdgeHandle<N>> {
     /**
      * Find all nodes with a certain sequence
      *
-     * @param s, sequence you want to find in the graph
+     * @param s sequence you want to find in the graph
      * @return a stream of nodes that have the given sequence. This stream may
      * hold onto native resources and must be closed after use
      */
@@ -321,7 +328,7 @@ public interface HandleGraph<N extends NodeHandle, E extends EdgeHandle<N>> {
     public default AutoClosedIterator<NodeSequence<N>> nodesWithTheirSequence() {
         AutoClosedIterator<N> nodes = nodes();
         Function<N, NodeSequence<N>> nodeToSeq
-                = node -> new NodeSequence<N>(node, sequenceOf(node));
+                = node -> new NodeSequence<>(node, sequenceOf(node));
         return AutoClosedIterator.map(nodes, nodeToSeq);
     }
 }

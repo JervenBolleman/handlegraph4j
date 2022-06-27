@@ -35,7 +35,7 @@ package io.github.jervenbolleman.handlegraph4j;
  * <li>reverse to reverse strand</li>
  * </ul>
  *
- * @author Jerven Bolleman <jerven.bolleman@sib.swiss>
+ * @author <a href="mailto:jerven.bolleman@sib.swiss">Jerven Bolleman</a>
  * @param <N> the type of NodeHandles stored in this edge.
  */
 public interface EdgeHandle<N extends NodeHandle> {
@@ -56,9 +56,9 @@ public interface EdgeHandle<N extends NodeHandle> {
      * Compares a EdgeHandle to another object.
      *
      * @param o The object to compare this EdgeHandle to.
-     * @return <tt>true</tt> if the other object is an instance of
-     * {@link Edgehandle} and their internal-representations are equal,
-     * <tt>false</tt> otherwise.
+     * @return <var>true</var> if the other object is an instance of
+     * {@link EdgeHandle} and their internal-representations are equal,
+     * <var>false</var> otherwise.
      *
      * EdgeHandles in equal considering graphs topology but with different
      * implementations/containers are not required to return true.

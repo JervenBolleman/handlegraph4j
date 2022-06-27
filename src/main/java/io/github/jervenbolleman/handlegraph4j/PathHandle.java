@@ -33,7 +33,7 @@ package io.github.jervenbolleman.handlegraph4j;
  * Therefore you are not allowed to use synchronized methods or depend
  * on the identity of the Path to be preserved.
  * 
- * @author Jerven Bolleman <jerven.bolleman@sib.swiss>
+ * @author <a href="mailto:jerven.bolleman@sib.swiss">Jerven Bolleman</a>
  */
 public interface PathHandle {
 
@@ -41,9 +41,9 @@ public interface PathHandle {
      * Compares a PathHandle to another object.
      *
      * @param o The object to compare this PathHandle to.
-     * @return <tt>true</tt> if the other object is an instance of
-     * {@link Stephandle} and their internal-representations are equal,
-     * <tt>false</tt> otherwise.
+     * @return <var>true</var> if the other object is an instance of
+     * {@link PathHandle} and their internal-representations are equal,
+     * <var>false</var> otherwise.
      *
      * PathHandles in equal considering graphs topology but with different
      * implementations/containers are not required to return true

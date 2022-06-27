@@ -25,7 +25,7 @@ package io.github.jervenbolleman.handlegraph4j.iterators;
 
 /**
  *
- * @author Jerven Bolleman <jerven.bolleman@sib.swiss>
+ * @author <a href="mailto:jerven.bolleman@sib.swiss">Jerven Bolleman</a>
  */
 class ConcatenatingIterator<T> implements AutoClosedIterator<T> {
 

@@ -37,50 +37,57 @@ import java.util.stream.Stream;
  * Considering a significant of effort in handlegraphs is made to avoid over use
  * of memory we should avoid these!
  *
- * @author Jerven Bolleman <jerven.bolleman@sib.swiss>
+ * @author <a href="mailto:jerven.bolleman@sib.swiss">Jerven Bolleman</a>
  * @param <T>
  */
 public interface AutoClosedIterator<T> extends AutoCloseable, Iterator<T> {
 
-    
-    @Override
-    /**
-     * Overriding close to not throw an Exception (may still throw a Runtime 
-     * Exception.
-     */
-    public void close();
+	@Override
+	/**
+	 * Overriding close to not throw an Exception (may still throw a Runtime
+	 * Exception.
+	 */
+	public void close();
 
-    /**
-     * @param <T> 
-     * @param stat
-     * @return a new AutoClosedIterator of this single item.
-     */
-    public static <T> AutoClosedIterator<T> of(T stat) {
+	/**
+	 * @param <T>  type
+	 * @param stat single T to iterate over
+	 * @return a new AutoClosedIterator of this single item.
+	 */
+	public static <T> AutoClosedIterator<T> of(T stat) {
 
-        return new AutoClosedIterator<T>() {
-            T t = stat;
+		return new AutoClosedIterator<>() {
+			T t = stat;
 
-            @Override
-            public void close() {
-            }
+			@Override
+			public void close() {
+			}
 
-            @Override
-            public boolean hasNext() {
-                return t != null;
-            }
+			@Override
+			public boolean hasNext() {
+				return t != null;
+			}
 
-            @Override
-            public T next() {
-                T temp = t;
-                t = null;
-                return temp;
-            }
-        };
-    }
-   
-    public static <T> AutoClosedIterator<T> concat(AutoClosedIterator<T> first, AutoClosedIterator<T> second) {
-        return new AutoClosedIterator<T>() {
-        	private boolean useFirst = true;
+			@Override
+			public T next() {
+				T temp = t;
+				t = null;
+				return temp;
+			}
+		};
+	}
+
+	/**
+	 * 
+	 * @param <T>    type
+	 * @param first  iterator to concat
+	 * @param second iterator to concat
+	 * @return iterator of first+second in order
+	 */
+	public static <T> AutoClosedIterator<T> concat(AutoClosedIterator<T> first, AutoClosedIterator<T> second) {
+		return new AutoClosedIterator<>() {
+			private boolean useFirst = true;
+
 			@Override
 			public boolean hasNext() {
 				if (useFirst && first.hasNext()) {
@@ -106,243 +113,274 @@ public interface AutoClosedIterator<T> extends AutoCloseable, Iterator<T> {
 				second.close();
 			}
 		};
-    }
+	}
 
-    public static <T> AutoClosedIterator<T> from(Iterator<T> iter) {
-        return new AutoClosedIterator<T>() {
-            @Override
-            public void close() {
+	/**
+	 * 
+	 * @param <T>  type
+	 * @param iter to transform
+	 * @return now closable iter
+	 */
+	public static <T> AutoClosedIterator<T> from(Iterator<T> iter) {
+		return new AutoClosedIterator<>() {
+			@Override
+			public void close() {
 
-            }
+			}
 
-            @Override
-            public boolean hasNext() {
-                return iter.hasNext();
-            }
+			@Override
+			public boolean hasNext() {
+				return iter.hasNext();
+			}
 
-            @Override
-            public T next() {
-                return iter.next();
-            }
-        };
-    }
+			@Override
+			public T next() {
+				return iter.next();
+			}
+		};
+	}
 
-    public static <T> AutoClosedIterator<T> filter(AutoClosedIterator<T> i, Predicate<T> test) {
-        return new AutoClosedIterator<T>() {
-            T next;
+	/**
+	 * 
+	 * @param <T>  type
+	 * @param i    input
+	 * @param test the filtering predicate
+	 * @return an iterator without the elements that test true
+	 */
+	public static <T> AutoClosedIterator<T> filter(AutoClosedIterator<T> i, Predicate<T> test) {
+		return new AutoClosedIterator<>() {
+			T next;
 
-            @Override
-            public void close() {
-                i.close();
-            }
+			@Override
+			public void close() {
+				i.close();
+			}
 
-            @Override
-            public boolean hasNext() {
-            	if (next != null)
-            		return true;
-                while (next == null && i.hasNext()) {
-                    var pn = i.next();
-                    if (test.test(pn)) {
-                        next = pn;
-                        return true;
-                    }
-                }
-                return false;
-            }
+			@Override
+			public boolean hasNext() {
+				if (next != null)
+					return true;
+				while (next == null && i.hasNext()) {
+					var pn = i.next();
+					if (test.test(pn)) {
+						next = pn;
+						return true;
+					}
+				}
+				return false;
+			}
 
-            @Override
-            public T next() {
-                T temp = next;
-                next = null;
-                return temp;
-            }
+			@Override
+			public T next() {
+				T temp = next;
+				next = null;
+				return temp;
+			}
 
-        };
-    }
+		};
+	}
 
-    /**
-     * Warning this might consume a lot of memory
-     * @param <I>
-     * @param s
-     * @return a wrapped stream iterator.
-     */
-    public static <I> AutoClosedIterator<I> from(Stream<I> s) {
-        Iterator<I> i = s.iterator();
-        return new AutoClosedIterator<I>() {
-            @Override
-            public void close() {
-                s.close();
-            }
+	/**
+	 * Warning this might consume a lot of memory
+	 * 
+	 * @param <I> type
+	 * @param s   stream to convert
+	 * @return a wrapped stream iterator.
+	 */
+	public static <I> AutoClosedIterator<I> from(Stream<I> s) {
+		Iterator<I> i = s.iterator();
+		return new AutoClosedIterator<>() {
+			@Override
+			public void close() {
+				s.close();
+			}
 
-            @Override
-            public boolean hasNext() {
-                return i.hasNext();
-            }
+			@Override
+			public boolean hasNext() {
+				return i.hasNext();
+			}
 
-            @Override
-            public I next() {
-                return i.next();
-            }
-        };
-    }
+			@Override
+			public I next() {
+				return i.next();
+			}
+		};
+	}
 
-    public static <O> AutoClosedIterator<O> map(OfLong i, Function<Long, O> map) {
-        return new AutoClosedIterator<O>() {
-            @Override
-            public void close() {
-            }
+	/**
+	 * 
+	 * @param <O> output type
+	 * @param i   long primitive iterator
+	 * @param map to turn the longs into O
+	 * @return iteratorion over Os from i
+	 */
+	public static <O> AutoClosedIterator<O> map(OfLong i, Function<Long, O> map) {
+		return new AutoClosedIterator<>() {
+			@Override
+			public void close() {
+			}
 
-            @Override
-            public boolean hasNext() {
-                return i.hasNext();
-            }
+			@Override
+			public boolean hasNext() {
+				return i.hasNext();
+			}
 
-            @Override
-            public O next() {
-                return map.apply(i.nextLong());
-            }
-        };
-    }
-    
-    public static <O> AutoClosedIterator<O> map(OfLong i, LongFunction<O> map) {
-        return new AutoClosedIterator<O>() {
-            @Override
-            public void close() {
-            }
+			@Override
+			public O next() {
+				return map.apply(i.nextLong());
+			}
+		};
+	}
 
-            @Override
-            public boolean hasNext() {
-                return i.hasNext();
-            }
+	/**
+	 * 
+	 * @param <O> output type
+	 * @param i   long primitive iterator
+	 * @param map to turn the longs into O
+	 * @return iteratorion over Os from i
+	 */
+	public static <O> AutoClosedIterator<O> map(OfLong i, LongFunction<O> map) {
+		return new AutoClosedIterator<>() {
+			@Override
+			public void close() {
+			}
 
-            @Override
-            public O next() {
-                return map.apply(i.nextLong());
-            }
-        };
-    }
+			@Override
+			public boolean hasNext() {
+				return i.hasNext();
+			}
 
-    /**
-     * @param <I>
-     * @param <O>
-     * @param i
-     * @param map
-     * @return a new iterator that lazily maps the internal iterator
-     */
-    public static <I, O> AutoClosedIterator<O> map(Iterator<I> i, Function<I, O> map) {
-        return new AutoClosedIterator<O>() {
-            @Override
-            public void close() {
-            }
+			@Override
+			public O next() {
+				return map.apply(i.nextLong());
+			}
+		};
+	}
 
-            @Override
-            public boolean hasNext() {
-                return i.hasNext();
-            }
+	/**
+	 * @param <I> input type
+	 * @param <O> output type
+	 * @param i   input iterator
+	 * @param map the function to change I into O
+	 * @return a new iterator that lazily maps the internal iterator
+	 */
+	public static <I, O> AutoClosedIterator<O> map(Iterator<I> i, Function<I, O> map) {
+		return new AutoClosedIterator<>() {
+			@Override
+			public void close() {
+			}
 
-            @Override
-            public O next() {
-                return map.apply(i.next());
-            }
-        };
-    }
+			@Override
+			public boolean hasNext() {
+				return i.hasNext();
+			}
 
-    /**
-     * @param <I>
-     * @param <O>
-     * @param i
-     * @param map
-     * @return a new iterator that lazily maps the internal iterator
-     */
-    public static <I, O> AutoClosedIterator<O> map(AutoClosedIterator<I> i, Function<I, O> map) {
-        return new AutoClosedIterator<O>() {
-            @Override
-            public void close() {
-                i.close();
-            }
+			@Override
+			public O next() {
+				return map.apply(i.next());
+			}
+		};
+	}
 
-            @Override
-            public boolean hasNext() {
-                return i.hasNext();
-            }
+	/**
+	 * @param <I> type safety
+	 * @param <O> type safety
+	 * @param i   iterator
+	 * @param map the function to change I into O
+	 * @return a new iterator that lazily maps the internal iterator
+	 */
+	public static <I, O> AutoClosedIterator<O> map(AutoClosedIterator<I> i, Function<I, O> map) {
+		return new AutoClosedIterator<>() {
+			@Override
+			public void close() {
+				i.close();
+			}
 
-            @Override
-            public O next() {
-                I next = i.next();
+			@Override
+			public boolean hasNext() {
+				return i.hasNext();
+			}
+
+			@Override
+			public O next() {
+				I next = i.next();
 				return map.apply(next);
-            }
+			}
 
-        };
-    }
+		};
+	}
 
-    /**
-     * Turn multiple iterators into a single one
-     * @param <T>
-     * @param iter
-     * @return an iterator of all other iterators contents 
-     */
-    public static <T> AutoClosedIterator<T> flatMap(AutoClosedIterator<AutoClosedIterator<T>> iter) {
-        return new ConcatenatingIterator<T>(iter);
-    }
-    
-    /**
-     * @param <T>
-     * @return an iterator without contents
-     */
-    public static <T> AutoClosedIterator<T> empty() {
-        return new AutoClosedIterator<T>() {
-            @Override
-            public void close() {
+	/**
+	 * Turn multiple iterators into a single one
+	 * 
+	 * @param <T>  type safety
+	 * @param iter of iterators
+	 * @return an iterator of all other iterators contents
+	 */
+	public static <T> AutoClosedIterator<T> flatMap(AutoClosedIterator<AutoClosedIterator<T>> iter) {
+		return new ConcatenatingIterator<>(iter);
+	}
 
-            }
+	/**
+	 * @param <T> type safety
+	 * @return an iterator without contents
+	 */
+	public static <T> AutoClosedIterator<T> empty() {
+		return new AutoClosedIterator<>() {
+			@Override
+			public void close() {
 
-            @Override
-            public boolean hasNext() {
-                return false;
-            }
+			}
 
-            @Override
-            public T next() {
-                throw new IllegalStateException();
-            }
-        };
-    }
-    
-    
-    /**
-     * Early terminate the resulting iterator upon first
-     * T that returns true for the given predicate.
-     * @param <T>
-     * @param wrapped
-     * @param test
-     * @return An iterator that takes elements from wrapped until the predicate returns true for a potential value.
-     */
-    public static <T> AutoClosedIterator<T> terminate(AutoClosedIterator<T> wrapped, Predicate<T> test) {
-        return new AutoClosedIterator<T>() {
-            T t = null;
-            @Override
-            public void close() {
-                wrapped.close();
-            }
+			@Override
+			public boolean hasNext() {
+				return false;
+			}
 
-            @Override
-            public boolean hasNext() {
-                while(wrapped.hasNext() && t == null)
-                {
-                    T p = wrapped.next();
-                    if (test.test(p)){
-                        t = p;
-                        return true;
-                    } else
-                        return false;
-                }
-                return false;
-            }
+			@Override
+			public T next() {
+				throw new IllegalStateException();
+			}
+		};
+	}
 
-            @Override
-            public T next() {
-                return t;
-            }
-        };
-    }
+	/**
+	 * Early terminate the resulting iterator upon first T that returns true for the
+	 * given predicate.
+	 * 
+	 * @param <T>     the type of the thing that is in the wrapped
+	 * @param wrapped the iterator wrapped that may return elements that are return
+	 *                true when tested
+	 * @param test    a predicate
+	 * @return An iterator that takes elements from wrapped until the predicate
+	 *         returns true for a potential value.
+	 */
+	public static <T> AutoClosedIterator<T> terminate(AutoClosedIterator<T> wrapped, Predicate<T> test) {
+		return new AutoClosedIterator<>() {
+			T t = null;
+
+			@Override
+			public void close() {
+				wrapped.close();
+			}
+
+			@Override
+			public boolean hasNext() {
+				while (wrapped.hasNext() && t == null) {
+					T p = wrapped.next();
+					if (test.test(p)) {
+						t = p;
+						return true;
+					} else
+						return false;
+				}
+				return false;
+			}
+
+			@Override
+			public T next() {
+				return t;
+			}
+		};
+	}
 }

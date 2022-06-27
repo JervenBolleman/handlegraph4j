@@ -27,7 +27,7 @@ import java.util.Iterator;
 
 /**
  *
- * @author Jerven Bolleman <jerven.bolleman@sib.swiss>
+ * @author <a href="mailto:jerven.bolleman@sib.swiss">Jerven Bolleman</a>
  */
 class CollectingOfIterator<T> implements Iterator<T> {
 

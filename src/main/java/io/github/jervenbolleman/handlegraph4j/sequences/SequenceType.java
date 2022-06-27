@@ -27,72 +27,109 @@ import static java.nio.charset.StandardCharsets.US_ASCII;
 
 /**
  *
- * @author Jerven Bolleman <jerven.bolleman@sib.swiss>
+ * @author <a href="mailto:jerven.bolleman@sib.swiss">Jerven Bolleman</a>
  */
 public enum SequenceType {
+	/**
+	 * {@link ShortKnownSequence}
+	 */
+	SHORT_KNOWN(0),
+	/**
+	 * {@link ShortAmbiguousSequence}
+	 */
+	SHORT_AMBIGUOUS(1l << 62),
+	/**
+	 * {@link LongSequence}
+	 */
+	LONG_VIA_ID(2l << 62),
+	/**
+	 * An non compressed or any other sequence type
+	 */
+	OTHER(3l << 62);
 
-    SHORT_KNOWN(0),
-    SHORT_AMBIGUOUS(1l << 62),
-    LONG_VIA_ID(2l << 62),
-    OTHER(3l << 62);
-    private static final boolean[] KNOWNS = new boolean[255];
+	private static final boolean[] KNOWNS = new boolean[255];
 
-    private final long code;
+	private final long code;
 
-    private SequenceType(long code) {
-        this.code = code;
-    }
+	private SequenceType(long code) {
+		this.code = code;
+	}
 
-    static {
-        KNOWNS['a'] = true;
-        KNOWNS['A'] = true;
-        KNOWNS['c'] = true;
-        KNOWNS['C'] = true;
-        KNOWNS['g'] = true;
-        KNOWNS['G'] = true;
-        KNOWNS['t'] = true;
-        KNOWNS['T'] = true;
-    }
+	static {
+		KNOWNS['a'] = true;
+		KNOWNS['A'] = true;
+		KNOWNS['c'] = true;
+		KNOWNS['C'] = true;
+		KNOWNS['g'] = true;
+		KNOWNS['G'] = true;
+		KNOWNS['t'] = true;
+		KNOWNS['T'] = true;
+	}
 
-    public static SequenceType fromLong(long sequence) {
-        int typeId = (int) (sequence >>> 62l);
-        switch (typeId) {
-            case 0:
-                return SHORT_KNOWN;
-            case 1:
-                return SHORT_AMBIGUOUS;
-            case 2:
-                return LONG_VIA_ID;
-            case 3:
-                return OTHER;
-        }
-        return null;
-    }
-    
-    public static Sequence fromString(String sequence) {
-        return fromByteArray(sequence.getBytes(US_ASCII));
-    }
+	/**
+	 * 
+	 * @param sequence in a long encoded form
+	 * @return the encoding type
+	 */
+	public static SequenceType fromLong(long sequence) {
+		int typeId = (int) (sequence >>> 62l);
+		switch (typeId) {
+		case 0:
+			return SHORT_KNOWN;
+		case 1:
+			return SHORT_AMBIGUOUS;
+		case 2:
+			return LONG_VIA_ID;
+		case 3:
+			return OTHER;
+		}
+		return null;
+	}
 
-    public static Sequence fromByteArray(byte[] sequence) {
-        if ((sequence.length <= ShortKnownSequence.MAX_LENGTH) && allKnown(sequence)) {
-            return new ShortKnownSequence(sequence);
-        } else if ((sequence.length <= ShortAmbiguousSequence.MAX_LENGTH)) {
-            return new ShortAmbiguousSequence(sequence);
-        } else {
-            return new LongSequence(sequence);
-        }
-    }
+	/**
+	 * 
+	 * @param sequence in iupac dna
+	 * @return a Sequence object that is as small as we can make it
+	 */
+	public static Sequence fromString(String sequence) {
+		return fromByteArray(sequence.getBytes(US_ASCII));
+	}
 
-    private static boolean allKnown(byte[] sequence) {
-        for (byte b : sequence) {
-            if (!KNOWNS[b]) {
-                return false;
-            }
-        }
-        return true;
-    }
+	/**
+	 * 
+	 * @param sequence in iupac dna
+	 * @return a Sequence object that is as small as we can make it
+	 */
+	public static Sequence fromByteArray(byte[] sequence) {
+		if ((sequence.length <= ShortKnownSequence.MAX_LENGTH) && allKnown(sequence)) {
+			return new ShortKnownSequence(sequence);
+		} else if ((sequence.length <= ShortAmbiguousSequence.MAX_LENGTH)) {
+			return new ShortAmbiguousSequence(sequence);
+		} else {
+			return new LongSequence(sequence);
+		}
+	}
 
-    public long code() {
-        return code;
-    }
+	/**
+	 * 
+	 * @param sequence in iupac dna
+	 * @return if none of the nucleotides are ambiguous
+	 */
+	private static boolean allKnown(byte[] sequence) {
+		for (byte b : sequence) {
+			if (!KNOWNS[b]) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * 
+	 * @return a long where the first few values are set to an id for a sequence
+	 *         type
+	 */
+	public long code() {
+		return code;
+	}
 }

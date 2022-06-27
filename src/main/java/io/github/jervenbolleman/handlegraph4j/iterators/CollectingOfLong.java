@@ -28,33 +28,38 @@ import java.util.PrimitiveIterator;
 
 /**
  *
- * @author Jerven Bolleman <jerven.bolleman@sib.swiss>
+ * @author <a href="mailto:jerven.bolleman@sib.swiss">Jerven Bolleman</a>
  */
 public class CollectingOfLong implements PrimitiveIterator.OfLong {
 
-    private final Iterator<PrimitiveIterator.OfLong> iter;
+	private final Iterator<PrimitiveIterator.OfLong> iter;
 
-    public CollectingOfLong(Iterator<PrimitiveIterator.OfLong> iter) {
-        this.iter = iter;
-    }
-    PrimitiveIterator.OfLong current;
+	/**
+	 * A bit like concatenating primitive iterators
+	 * @param iter to transform/concat
+	 */
+	public CollectingOfLong(Iterator<PrimitiveIterator.OfLong> iter) {
+		this.iter = iter;
+	}
 
-    @Override
-    public long nextLong() {
-        return current.nextLong();
-    }
+	PrimitiveIterator.OfLong current;
 
-    @Override
-    public boolean hasNext() {
-        if (current != null && current.hasNext()) {
-            return true;
-        }
-        while (iter.hasNext()) {
-            current = iter.next();
-            if (current.hasNext()) {
-                return true;
-            }
-        }
-        return false;
-    }
+	@Override
+	public long nextLong() {
+		return current.nextLong();
+	}
+
+	@Override
+	public boolean hasNext() {
+		if (current != null && current.hasNext()) {
+			return true;
+		}
+		while (iter.hasNext()) {
+			current = iter.next();
+			if (current.hasNext()) {
+				return true;
+			}
+		}
+		return false;
+	}
 }
