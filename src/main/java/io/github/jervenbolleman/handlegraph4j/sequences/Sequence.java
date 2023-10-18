@@ -211,13 +211,21 @@ public interface Sequence {
      * @return the IUPAC DNA coded sequence.
      */
     default String asString() {
+        return new String(asAsciiBytes(), US_ASCII);
+    }
+
+    /**
+     * Convert the Sequence object into a java byte array of ascii
+     *
+     * @return the IUPAC DNA coded sequence.
+     */
+    default byte[] asAsciiBytes() {
         byte[] val = new byte[length()];
         for (int i = 0; i < length(); i++) {
             val[i] = byteAt(i);
         }
-        return new String(val, US_ASCII);
+        return val;
     }
-
     /**
      * Test if a String contains only known IUPAC codes
      *

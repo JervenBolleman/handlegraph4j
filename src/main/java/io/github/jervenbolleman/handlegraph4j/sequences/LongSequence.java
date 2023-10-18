@@ -165,10 +165,11 @@ public class LongSequence implements Sequence {
 
     @Override
     public String toString() {
-        return new String(asByteArray(), US_ASCII);
+        return new String(asAsciiBytes(), US_ASCII);
     }
 
-    private byte[] asByteArray() {
+    @Override
+    public byte[] asAsciiBytes() {
         byte[] val = new byte[length()];
         for (int i = 0; i < length(); i++) {
             val[i] = byteAt(i);
