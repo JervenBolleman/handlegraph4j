@@ -58,22 +58,25 @@ public interface AutoClosedIterator<T> extends AutoCloseable, Iterator<T> {
 	public static <T> AutoClosedIterator<T> of(T stat) {
 
 		return new AutoClosedIterator<>() {
-			T t = stat;
-
+			private final T t = stat;
+			boolean consumed = false;
 			@Override
 			public void close() {
 			}
 
 			@Override
 			public boolean hasNext() {
-				return t != null;
+				return !consumed;
 			}
 
 			@Override
 			public T next() {
-				T temp = t;
-				t = null;
-				return temp;
+				if (consumed) {
+					throw new NoSuchElementException();
+				} else {
+					consumed = true;
+					return t;
+				}
 			}
 		};
 	}
@@ -100,7 +103,7 @@ public interface AutoClosedIterator<T> extends AutoCloseable, Iterator<T> {
 
 			@Override
 			public T next() {
-				if (useFirst) {
+				if (useFirst && first.hasNext()) {
 					T next = first.next();
 					useFirst = first.hasNext();
 					return next;
