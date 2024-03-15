@@ -24,6 +24,7 @@
 package io.github.jervenbolleman.handlegraph4j.iterators;
 
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.PrimitiveIterator.OfLong;
 import java.util.function.Function;
 import java.util.function.LongFunction;
@@ -339,7 +340,7 @@ public interface AutoClosedIterator<T> extends AutoCloseable, Iterator<T> {
 
 			@Override
 			public T next() {
-				throw new IllegalStateException();
+				throw new NoSuchElementException();
 			}
 		};
 	}
