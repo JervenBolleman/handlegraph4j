@@ -60,6 +60,7 @@ public interface AutoClosedIterator<T> extends AutoCloseable, Iterator<T> {
 		return new AutoClosedIterator<>() {
 			private final T t = stat;
 			boolean consumed = false;
+
 			@Override
 			public void close() {
 			}
@@ -82,6 +83,71 @@ public interface AutoClosedIterator<T> extends AutoCloseable, Iterator<T> {
 	}
 
 	/**
+	 * @param <T>    type
+	 * @param first  first T to iterate over
+	 * @param second second T to iterate over
+	 * @return a new AutoClosedIterator of these two items.
+	 */
+	public static <T> AutoClosedIterator<T> of(final T first, final T second) {
+
+		return new AutoClosedIterator<>() {
+			int consumed = 0;
+
+			@Override
+			public void close() {
+			}
+
+			@Override
+			public boolean hasNext() {
+				return consumed < 2;
+			}
+
+			@Override
+			public T next() {
+				switch (consumed) {
+				case 0:
+					consumed++;
+					return first;
+				case 1:
+					consumed++;
+					return second;
+				default:
+					throw new NoSuchElementException();
+				}
+			}
+		};
+	}
+
+	/**
+	 * @param <T> type
+	 * @param t   array T to iterate over
+	 * @return a new AutoClosedIterator of the items in the array.
+	 */
+	public static <T> AutoClosedIterator<T> of(final T[] t) {
+
+		return new AutoClosedIterator<T>() {
+			int consumed = 0;
+
+			@Override
+			public void close() {
+			}
+
+			@Override
+			public boolean hasNext() {
+				return consumed < t.length;
+			}
+
+			@Override
+			public T next() {
+				if (consumed >= t.length) {
+					throw new NoSuchElementException();
+				}
+				return t[consumed++];
+			}
+		};
+	}
+
+	/**
 	 * 
 	 * @param <T>    type
 	 * @param first  iterator to concat
@@ -89,6 +155,11 @@ public interface AutoClosedIterator<T> extends AutoCloseable, Iterator<T> {
 	 * @return iterator of first+second in order
 	 */
 	public static <T> AutoClosedIterator<T> concat(AutoClosedIterator<T> first, AutoClosedIterator<T> second) {
+		if (!first.hasNext()) {
+			return second;
+		} else if (!second.hasNext()) {
+			return first;
+		}
 		return new AutoClosedIterator<>() {
 			private boolean useFirst = true;
 
@@ -197,6 +268,33 @@ public interface AutoClosedIterator<T> extends AutoCloseable, Iterator<T> {
 			@Override
 			public void close() {
 				s.close();
+			}
+
+			@Override
+			public boolean hasNext() {
+				return i.hasNext();
+			}
+
+			@Override
+			public I next() {
+				return i.next();
+			}
+		};
+	}
+
+	/**
+	 * Warning this might consume a lot of memory
+	 * 
+	 * @param <I> type
+	 * @param s   iterable to convert
+	 * @return a wrapped stream iterator.
+	 */
+	public static <I> AutoClosedIterator<I> from(Iterable<I> s) {
+		Iterator<I> i = s.iterator();
+		return new AutoClosedIterator<>() {
+			@Override
+			public void close() {
+
 			}
 
 			@Override

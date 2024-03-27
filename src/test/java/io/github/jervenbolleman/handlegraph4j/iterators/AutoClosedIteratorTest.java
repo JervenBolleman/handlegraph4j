@@ -1,5 +1,6 @@
 package io.github.jervenbolleman.handlegraph4j.iterators;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -34,6 +35,33 @@ public class AutoClosedIteratorTest {
 		try (AutoClosedIterator<Object> empty1 = AutoClosedIterator.empty();
 				AutoClosedIterator<Object> notEmpty= AutoClosedIterator.of("String");
 				AutoClosedIterator<Object> both = AutoClosedIterator.concat(empty1, notEmpty)) {
+			assertTrue(both.hasNext());
+			assertNotNull(both.next());
+			assertFalse(both.hasNext());
+			assertThrows(NoSuchElementException.class, () -> both.next());
+		}
+	}
+	
+	@Test
+	public void ofTwoIterators() {
+		try (AutoClosedIterator<Object> both = AutoClosedIterator.of("First", "Second")) {
+			assertTrue(both.hasNext());
+			assertNotNull(both.next());
+			assertTrue(both.hasNext());
+			assertNotNull(both.next());
+			assertFalse(both.hasNext());
+			assertThrows(NoSuchElementException.class, () -> both.next());
+		}
+	}
+	
+	@Test
+	public void ofThreeIterators() {
+		try (AutoClosedIterator<Object> both = AutoClosedIterator.of(new String[]{"First", "Second", "Third"})) {
+			assertTrue(both.hasNext());
+			assertNotNull(both.next());
+			assertTrue(both.hasNext());
+			var s= both.next();
+			assertEquals(s, "Second");
 			assertTrue(both.hasNext());
 			assertNotNull(both.next());
 			assertFalse(both.hasNext());
